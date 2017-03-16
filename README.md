@@ -17,8 +17,8 @@ A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to
 ## Usage
 
 1. Choices:  
-a) Run the Ocean App Server and go to [http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html](http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html)  
-b) Run your own server to serve the files in /build
+* Run the Ocean App Server and go to [http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html](http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html)  
+* Run your own server to serve the files in /build
 
 
 ## Task List
@@ -27,6 +27,12 @@ b) Run your own server to serve the files in /build
 - [ ] Layered 3d chart which shows shape of layers.
 - [ ] Add streaming capability
 - [ ] Pre-load frames
+- [ ] Show frame data like hour or data
+- [ ] Display data on MapBox map
+- [ ] Frame scrubber should reflect range limit
+- [ ] Frame scrubber should show which frames have loaded
+- [ ] Display loader spinner on not-yet-fetched frames
+- [ ] Play toggle should be larger
 
 ## Notes
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
