@@ -1,7 +1,7 @@
 <h1 align="center">React Ocean App<h1/>
 
 <p align="center">
-    <img src ="http://g.recordit.co/48o9VCOhqc.gif" />
+    <img src ="public/demo.gif" />
 </p>
 
 ## Synopsis
