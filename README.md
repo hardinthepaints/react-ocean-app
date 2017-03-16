@@ -20,6 +20,12 @@ A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to
 * Run the Ocean App Server and go to [http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html](http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html)  
 * Run your own server to serve the files in /build
 
+## Development
+* Instructions for [Create React App](https://github.com/facebookincubator/create-react-app).
+* `npm install`
+`npm start` and go to [http://localhost:3000/](http://localhost:3000/)
+
+
 
 ## Task List
 - [ ] Snapshot tests for React components
