@@ -6,16 +6,16 @@
 
 ## Synopsis
 
-A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to be used with the [Ocean App](https://github.com/hardinthepaints/ocean-app "Ocean App Server").
+A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to be used with the [Ocean App Server](https://github.com/hardinthepaints/ocean-app).
 
 ## Installation
 
-1. Follow directions to install the [Ocean App](https://github.com/hardinthepaints/ocean-app "Ocean App Server")
+1. Follow directions to install the [Ocean App Server](https://github.com/hardinthepaints/ocean-app)
 2. Download this repository in app/static/webapp
 
 ## Usage
 
-1. Go to [](http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html, "http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html")
+1. Go to [http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html](http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html)
 
 
 ## License
