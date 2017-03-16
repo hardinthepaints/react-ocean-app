@@ -1,0 +1,95 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.Left{
+  display:compact;
+  align-items: center;
+  justify-content: space-around;
+  flex-direction: column;
+  height: 100%;
+  width:45%;
+  float: left;
+}
+
+.SmallGrayFont{
+  font-family: "helvetica";
+  font-size:30px;
+  color:gray;
+}
+
+.LargeGrayFont{
+  font-family: "helvetica";
+  font-size:50px;
+  color:gray;
+}
+.Right{
+  display:flex;
+  align-items:center;
+  justify-content: space-around;
+  flex-direction: column;
+  overflow: hidden;
+  float: right;
+  position: absolute;
+  left: 50%;
+  height: 100%;
+  width: 45%;
+}
+.RoundGray{
+  border-radius: 20px;
+  border-width: 2px;
+  background-color:lightgray;
+  border-style: solid;
+  border-color: gray;
+}
+
+
+
+.Inner{
+  position: absolute;
+  z-index:1;
+  width:90%;
+  height:90%;
+  margin:20px;
+}
+
+
+.Wrap{
+  width:auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height:auto;
+  margin-top:30px;
+  margin-left: 30px;
+  margin-right: 30px;
+
+}
+.Root{
+  display: inline-block;
+  width: 100%;
+  height: 100vh;
+  
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
