@@ -26,8 +26,6 @@ A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to
 `npm start` and go to [http://localhost:3000/](http://localhost:3000/)
 * Edit the files in [/src](/src)
 
-
-
 ## Task List
 - [ ] Snapshot tests for React components
 - [ ] Make graph adhere to aspect ratio
@@ -40,6 +38,7 @@ A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to
 - [ ] Frame scrubber should show which frames have loaded
 - [ ] Display loader spinner on not-yet-fetched frames
 - [ ] Play toggle should be larger
+- [ ] Add docs to explain code
 
 ## Notes
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
