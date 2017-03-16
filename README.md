@@ -24,6 +24,7 @@ A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to
 * Instructions for [Create React App](https://github.com/facebookincubator/create-react-app).
 * `npm install`
 `npm start` and go to [http://localhost:3000/](http://localhost:3000/)
+* Edit the files in [/src](/src)
 
 
 
