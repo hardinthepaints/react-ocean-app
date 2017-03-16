@@ -15,8 +15,8 @@ A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to
 
 ## Usage
 
-1. Choices:
-  Run the Ocean App Server and go to [http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html](http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html)
+1. Choices:  
+  Run the Ocean App Server and go to [http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html](http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html)  
   Run your own server to serve the files in /build
 
 ## License
