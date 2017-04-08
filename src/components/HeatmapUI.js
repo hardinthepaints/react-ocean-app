@@ -1,6 +1,9 @@
 //components/HeatmapUI.js
 import React, { Component, PropTypes } from 'react';
 import { initHeatmap } from '../actions'
+import MyLoader from './MyLoader'
+import MyHeatmap from '../heatmap/myheatmap'
+
 
 
   
@@ -8,62 +11,41 @@ class HeatmapUI extends Component {
   
   constructor(props){
     super(props)
-    this.calculateDims = this.calculateDims.bind(this)
+    this.state={
+        myheatmap:null
+    }
+    //this.calculateDims = this.calculateDims.bind(this)
   }
   
   componentDidMount(props){
-      const {id, dispatch, height} = this.props
-      dispatch( initHeatmap( id, this.props.height, this.props.width ) ) ;  
-            
-    
+      //const {id, dispatch, height} = this.props
+      //dispatch( initHeatmap( id, frames ) ) ;  
   }
   
-  componentDidUpdate( prevProps ){    
-      const {width, height, onSizeChange } = this.props
-      if ( prevProps.width !== width || prevProps.height !== height) {
-        onSizeChange( width, height )
-      }
-    
-  }
-  
-  calculateDims(){
-    
-    const {width, height, heatmap} = this.props;
-    
-    //if ( heatmap ) {
-    //  
-    //    var extra = heatmap.trace.colorbar.thickness + heatmap.trace.colorbar.xpad
-    //
-    //
-    //    if ( (height * heatmap.ratio + extra) < width ) {
-    //      console.log( "Wider than long" )
-    //      return [height * heatmap.ratio + extra, height]
-    //    } else {
-    //      return [ width, (width - extra) / heatmap.ratio ]
-    //    }
-    //}
-    //  
-    //else
-    
-    if (heatmap ) {
-      var out = [ width, width / heatmap.ratio ]
-      
-      return out;
+  componentDidUpdate( prevProps ){
+    const {id, frames, currentFrame, width, height} = this.props
+    if (prevProps.frames.length===0 && frames.length>0) {
+        this.setState( {myheatmap:new MyHeatmap(id, [frames[currentFrame]], width, height)})
     }
-    else return ([width, height])
     
-    
+    if ( this.state.myheatmap && (prevProps.currentFrame !== currentFrame)) {
+        this.state.myheatmap.playFrames([ frames[currentFrame] ])
+    }
   }
-  
-  
-  
+
   render() {
-    var dims = this.calculateDims();
-    
-    
-    return (
-      <div id={this.props.id} className={"GraphDiv"} style={{height:dims[1], width:dims[0]}}></div>
-    )
+      const {frames, id, width, height} = this.props
+      if (frames && frames.length>0) {
+        return (
+          <div id={id}
+              className={id}
+              style={{height:height,
+              width:width}}></div>) ;   
+      } else {
+        return (
+            <MyLoader loaded={frames.length!=0}>
+            </MyLoader>)
+      }
   }
 }
 
@@ -71,10 +53,10 @@ class HeatmapUI extends Component {
 
 HeatmapUI.propTypes = {
   id:PropTypes.string.isRequired,
-  dispatch:PropTypes.func.isRequired,
   height:PropTypes.number.isRequired,
   width:PropTypes.number.isRequired,
-  onSizeChange:PropTypes.func.isRequired
+  currentFrame:PropTypes.number.isRequired,
+  frames:PropTypes.array
 }
 
 module.exports = HeatmapUI;

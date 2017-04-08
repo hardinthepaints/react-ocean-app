@@ -1,20 +1,15 @@
 import { combineReducers } from 'redux';
 
 import {
-    REQUEST_DATA,
-    RECEIVE_DATA,
+
     PLAYPAUSE_PRESS,
     SCRUBBER,
     RANGE,
     SPEED_SLIDER,
     SET_CURRENT,
-    INIT_HEATMAP,
-    MAP_CONTAINER_RESIZE
+    RECEIVE_DATA,
+    //REQUEST_DATA, 
 } from './actions'
-
-import MyHeatmap from './heatmap/myheatmap'
-
-
 
 function getCorrectFrame( frame, range ){
     frame = Math.max( frame, range[0] );
@@ -23,13 +18,10 @@ function getCorrectFrame( frame, range ){
     
 }
 
-
-
 function currentFrame( state, action ){
     
     switch (action.type) {
         case RANGE:
-            console.log("action.range[0]: " + action.range[0])
             return getCorrectFrame( state.currentFrame, action.range );
         
         case SCRUBBER:
@@ -62,40 +54,14 @@ function isPlaying( isPlaying = false, action ){
             return false
         default:
             return isPlaying
-        
     }
 }
 
-function frame( state = { isFetching:false, data:[] }, action ){
-    
+function frames( state = [], action ){
+    /* action = {hours, date}*/
     switch (action.type){
-        case REQUEST_DATA:
-            return Object.assign({}, state, { isFetching:true } )
-        case RECEIVE_DATA:       
-            
-            return Object.assign({}, state,
-                {
-                   isFetching:false,
-                   data:action.frameData,
-                   x:action.x,
-                   y:action.y,
-                   frameCount:action.frameCount,
-               })
-        default:
-            return state
-        
-    }
-}
-
-function frames( state = {}, action ){
-    
-    switch (action.type){
-        case REQUEST_DATA:
         case RECEIVE_DATA:
-
-            return Object.assign({}, state, {
-                [action.frame] : frame( state[action.frame], action )
-            } )
+            return action.json;
         default:
             return state
         
@@ -109,10 +75,7 @@ function range( state = [0,100], action){
         case SCRUBBER:
             return [Math.min(state[0], action.frame), Math.max(state[1], action.frame)]
         case RECEIVE_DATA:
-            if(action.frameCount){
-                return [ state[0], action.frameCount -1 ];
-            }
-
+            return [ state[0], action.json.length -1 ];
         default:
             return state;
     }
@@ -127,31 +90,7 @@ function speed( state = 5, action){
     }
 }
 
-function heatmap( state=null, action){
-    switch(action.type){
-        case INIT_HEATMAP:
-            return new MyHeatmap( action.divname, action.height, action.width );
-            
-            return state
-        case SET_CURRENT:
-        case SCRUBBER:
-            state.playFrame( action.frame );
-            return state;
-        case RECEIVE_DATA:
-            
-            //var newFrame = { [action.frame]:action.frameData, ratio:action.ratio };
-            
-            /* add data to heatmap */
-            if(action.frame === 0) state.initHeatmap( action );
-            else state.addFrames( {[action.frame]:action.frameData} )
-            return state;
-        default:
-            return state;
-    }
-}
-
-
-function ui(state={currentFrame:0, isPlaying:true, speed:50, range:[0,50]}, action){    
+function ui(state={currentFrame:3, isPlaying:false, speed:50, range:[0,50]}, action){    
     
     return {
         currentFrame:currentFrame( state, action ),
@@ -166,7 +105,6 @@ function ui(state={currentFrame:0, isPlaying:true, speed:50, range:[0,50]}, acti
 const rootReducer = combineReducers({
     ui,
     frames,
-    heatmap,
 })
 
 export default rootReducer;

@@ -10,15 +10,12 @@ var Plotly = require('plotly.js');
 
 export default class MyHeatmap{
     
-    constructor( div, height, width ){
+    constructor( div, json, width, height ){
         
                 
         /* Bind functions which will be accessed outside of variable */
         this.initHeatmap = this.initHeatmap.bind( this )
-        this.addFrames = this.addFrames.bind( this )
-        this.play = this.play.bind( this )
-        this.playFrame = this.playFrame.bind( this )
-        this.resize = this.resize.bind( this )
+        this.playFrames = this.playFrames.bind( this )
 
 
         /* define sliders */    
@@ -37,100 +34,80 @@ export default class MyHeatmap{
         this.trace = trace[0]
         
         /* set the height */
-        //layout.height = height;
         layout.height = height;
         layout.width = width;
         
+        this.initHeatmap(json);
+        
         
     }
-    
+      
     /* Initially plot the map with one frame of data */
-    initHeatmap( data ){
-        const {ratio, frameData, x, y} = data
-
+    initHeatmap( json ){
         
-        console.log( "init heatmap on " + this.div )
-            
+        console.time("initHeatmap")
+        var z = json[0].z;
+        
         /* Initial data Data */
-        trace[0].z=frameData;
-
-
+        var trace = [
+            {
+                z: z,
+                /* x: json.lonp,
+                y: json.latp, */
+                hoverinfo:"z+text",            
+                type: 'heatmapgl',
+                colorscale: 'Jet',
+                opacity: 1.0,
+                reversescale: false,
+                name:'trace0',
+                connectgaps: false,
+                zsmooth:"fast",
+                zauto:true,
+                /* zmin:15,
+                zmax:33,*/
+            }
+        ];
         
-        //set the width
-        console.log( "ratio: " + ratio)
-        //layout.width = (ratio * layout.height) + trace[0].colorbar.thickness + trace[0].colorbar.xpad;
-        this.ratio = ratio;
-        
+        /* set the width */
+        /* layout.width = json.ratio * layout.height;
         layout.margin = {
-                t: 0,
-                r: 0 * ratio,
-                b: 0,
-                l: 0 * ratio,
-        }
+                t: 100,
+                r: 100 * json.ratio,
+                b: 100,
+                l: 100 * json.ratio,
+        } */
         
         /* Initinally plot an empty heatmap */
-        Plotly.plot(this.div, trace, layout,  {scrollZoom: false, staticPlot:false, displayModeBar: false, showLink:false});
-        
-        Plotly.relayout( this.div, layout )
-        
-        
-        var div = document.getElementById( this.div )
-        //window.onresize = function() {
-            //Plotly.Plots.resize( div );
-        //};
-        
-        /* Bind the event listeners */
-        this.bindEventListeners();
-        
-        this.plotted = true;
-        
-    }
-    
-    resize( width, height ){
-
-        layout.height = height;
-        layout.width = width;
-        if (this.plotted) Plotly.relayout( this.div, layout )
-    } 
-    /* Play through the frames or stop animating depending on whether already playing*/
-    play( isPaused ){
-        if ( isPaused ) {
-            /* Begin with initial animation */
-            Plotly.animate(this.div, null, updatemenus[0]['buttons'][0]['args'][1]);
-        } else {
-            Plotly.animate(this.div, [], updatemenus[0]['buttons'][0]['args'][1]);
-
-        }
-    }
-    
-    playFrame( frame ){
-        
-        Plotly.animate(this.div, [frame], updatemenus[0]['buttons'][0]['args'][1]);
+        Plotly.plot(this.div, trace, layout,  {scrollZoom: false, staticPlot:true, displayModeBar:false, showLink:false});
     }
         
-    /* Add frames to the plot and animate */
-    addFrames( frames ){ 
-        //console.log( Object.keys( json.frames ) )
-                    
+    playFrames( json ){
         /* Make the frames to animate */        
         var processedFrames = [];
         
-        Object.keys( frames ).map( function( key, index ){
-            
-            processedFrames.push( {
-                name: "" + key,
-                data: [{
-                    z: frames[key],
-                }],
-                traces: [0],
-            } );
+        const formatFrame = this.formatFrame;
+        
+        //Object.keys( json.frames ).map( function( key, index ){
+        json.map( function( frame, key ){
+          
+            processedFrames.push( formatFrame(frame, key) );
         });
         
-        /* Add and animate frames */
-        Plotly.addFrames( this.div, processedFrames );
-        this.play();
-             
+        Plotly.animate(this.div, processedFrames, updatemenus[0]['buttons'][0]['args'][1]);
     }
+    
+    /* Format frame data from the server so plotly can interpret */
+    formatFrame( frame, key ){
+            return {
+                name: "" + key,
+                data: [{
+                    z: frame.z,
+                }],
+                traces: [0],
+            };       
+        
+    }
+                
     
     /* Bind plotly event listeners*/
     bindEventListeners(){

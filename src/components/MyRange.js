@@ -1,7 +1,7 @@
 import React, { Component, PropTypes  } from 'react';
 import '../App.css'; 
 
-import Slider, { Range } from 'rc-slider';
+import { Range } from 'rc-slider';
 import './MySlider.css';
 
 require('rc-tooltip/assets/bootstrap.css');

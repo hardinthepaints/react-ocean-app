@@ -1,7 +1,7 @@
 import React, { Component, PropTypes  } from 'react';
 import '../App.css'; 
 
-import Slider, { Range } from 'rc-slider';
+import Slider from 'rc-slider';
 import './MySlider.css';
 
 

@@ -103,24 +103,25 @@ export var trace = [
 /* Layout of trace */
 export const layout = {
     title: 'Salinity',
+    autosize:false,
     margin: {
       t: 0,
       r: 0,
       b: 0,
       l: 0,
       autoexpand:false,
-    },   
+    },
+    paper_bgcolor:'#7f7f7f',
+    plot_bgcolor:'#c7c7c7',
     /* yaxis: axisTemplate,
     xaxis: Object.assign({}, axisTemplate, {title:'longitude'}), */
     
-    autosize:true,
-
     dragmode: "select",
     /* make background transparent*/
-    paper_bgcolor:'transparent',
-    plot_bgcolor:'transparent',
-    xaxis:axisTemplate,
-    yaxis:axisTemplate,
+    /* paper_bgcolor:'transparent',
+    plot_bgcolor:'transparent', */
+    /* xaxis:axisTemplate,
+    yaxis:axisTemplate, */
 
 
 };

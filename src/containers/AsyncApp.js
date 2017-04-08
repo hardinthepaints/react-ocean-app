@@ -1,16 +1,20 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Horizontal } from 'react-stack';
+import { Horizontal, Vertical } from 'react-stack';
 import ContainerDimensions from 'react-container-dimensions'
 
+var FPSStats = require('react-stats').FPSStats;
+var __DEV__ = true;
 
-import { fetchDataIfNeeded, playPausePress,scrubber, range, speedSlider, setCurrentFrame, mapContainerResize } from '../actions'
+import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame } from '../actions'
 
 /* Import my custom components */
 import MySlider from '../components/MySlider'
 import MyRange from '../components/MyRange'
 import HeatmapUI from '../components/HeatmapUI'
 import PlayPauseButton from '../components/PlayPauseButton'
+import MyNavBar from '../components/MyNavBar'
+
 
 var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                         window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -28,25 +32,18 @@ class AsyncApp extends Component {
         this.handleSpeedChange = this.handleSpeedChange.bind( this )
         this.play = this.play.bind( this )
         this.pause = this.pause.bind( this )
-        this.handleMapContainerResize = this.handleMapContainerResize.bind( this )
-
+        //this.getMaxFrame = this.getMaxFrame.bind( this )
     }
     
     componentDidMount(){
-        const { dispatch } = this.props
-        const { currentFrame } = this.props.ui;
-
-        dispatch( fetchDataIfNeeded( currentFrame ) );
-        
+        const { dispatch } = this.props        
+        dispatch( fetchDataIfNeeded() );
         
     }
     
     componentDidUpdate( prevProps ){
         const { dispatch } = this.props;
         const { currentFrame, isPlaying } = this.props.ui;
-        if ( currentFrame !== prevProps.ui.currentFrame ) {
-            dispatch( fetchDataIfNeeded( currentFrame) );
-        }
         
         /* If the state just changed to playing */
         if ( isPlaying !== prevProps.ui.isPlaying ) {
@@ -102,9 +99,11 @@ class AsyncApp extends Component {
             dispatch( setCurrentFrame( framesInRange[ nextFrame ], requestAnimationFrame(step) ));
             
             /* Fetch data if necessary */
-            dispatch( fetchDataIfNeeded( framesInRange[ nextFrame ] ));
+            //dispatch( fetchDataIfNeeded( framesInRange[ nextFrame ] ));
 
         }
+        
+        
         
         dispatch(setCurrentFrame( currentFrame, requestAnimationFrame(step) ));
            
@@ -116,7 +115,7 @@ class AsyncApp extends Component {
     
     handleChange( nextFrame ) {
         this.props.dispatch( scrubber(nextFrame ) );
-        this.props.dispatch( fetchDataIfNeeded(nextFrame));
+        //this.props.dispatch( fetchDataIfNeeded(nextFrame));
     }
     
     handleRangeChange(values){
@@ -135,17 +134,21 @@ class AsyncApp extends Component {
         }
     }
     
-    handleMapContainerResize( width, height ) {
-        this.props.dispatch( mapContainerResize( width, height ) )
+    getMaxFrame(){
+        const {frames} = this.props;
+        return !frames || (frames.length==0) ? 100 : frames.length - 1;
     }
     
-    
     render() {
+        
+        
         return (
-        <div>
+        <Vertical alignItems={'center'} alignContent={'space-around'} >
+            {/*Modal */}
+            <MyNavBar/>
             
             <Horizontal alignItems={'center'} alignContent={'space-around'} className="Inner">
-                <div className = "RoundGray Left">      
+                <div className = "navbar navbar-default Left">      
                 
                     <div className = "Wrap">
                       <PlayPauseButton onClick={this.handleButtonClick} value={this.props.ui.isPlaying}/>
@@ -158,7 +161,8 @@ class AsyncApp extends Component {
                             <span className="LargeGrayFont"> {this.props.ui.currentFrame} </span>
                         </Horizontal>
                     
-                      <MySlider onChange={this.handleChange} value={this.props.ui.currentFrame} min={0} max={this.props.frames[0].frameCount - 1} />
+                      <MySlider onChange={this.handleChange} value={this.props.ui.currentFrame} min={0}
+                      max={this.getMaxFrame()} />
                     </div>
                     
                     {/* Range slider */}
@@ -166,7 +170,7 @@ class AsyncApp extends Component {
                         <Horizontal alignItems={'center'} alignContent={'space-around'} >
                             <span className="LargeGrayFont" >{ "[" + this.props.ui.range[0] + ":" + this.props.ui.range[1] + "]"}</span>
                         </Horizontal>
-                      <MyRange onChange={this.handleRangeChange} value={this.props.ui.range} min={0} max={this.props.frames[0].frameCount - 1} />
+                      <MyRange onChange={this.handleRangeChange} value={this.props.ui.range} min={0} max={this.getMaxFrame()}  />
                     </div>
                     
                     {/* Speed slider */}
@@ -185,46 +189,46 @@ class AsyncApp extends Component {
                 <div className = "Right">
                     <ContainerDimensions >
                         { ({ width, height }) => 
-
-                            <HeatmapUI id={"GraphDiv"} heatmap={this.props.heatmap} dispatch={this.props.dispatch} onSizeChange={this.handleMapContainerResize} width={width} height={height} />
-                        
+                            <HeatmapUI
+                                frames={this.props.frames}
+                                currentFrame={this.props.ui.currentFrame}
+                                width={width}
+                                height={height}
+                                id={"graphDiv"}
+                                />
                         }
                     </ContainerDimensions>
                 </div>
                 
             </Horizontal>
-        </div>
+            {/*Stats */}
+            <FPSStats isActive={__DEV__} /> 
+        </Vertical>
         )
     }
 }
 
 AsyncApp.propTypes = {
-    frames:PropTypes.object.isRequired,
+    frames:PropTypes.array.isRequired,
     
     ui:PropTypes.shape( {
         isPlaying:PropTypes.bool.isRequired,
         speed:PropTypes.number.isRequired,
         range:PropTypes.array.isRequired,
         currentFrame:PropTypes.oneOfType( [ PropTypes.string.isRequired, PropTypes.number.isRequired ] ),
-
-    }),
-    heatmap:PropTypes.object,
-                       
-                       
-    x: PropTypes.array,
-    y: PropTypes.array,
-    isFetching:PropTypes.bool,
+    }),                       
 
     dispatch:PropTypes.func.isRequired,
 }
 
 function mapStateToProps( state ) {
         
-    const { ui,frames, heatmap } = state;
+    const { ui,frames } = state;
     const {currentFrame, range, speed, isPlaying} = ui;
-    const { isFetching, data } = frames[ui.currentFrame] || { isFetching:true, data:[] }
     
-    return {ui,frames,heatmap}
+    //const { isFetching, data } = hours[ui.currentDate][ui.currentHour] || { isFetching:true, data:[] }
+    
+    return {ui,frames}
 }
 
 export default connect( mapStateToProps)(AsyncApp) ;
