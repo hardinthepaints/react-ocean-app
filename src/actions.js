@@ -41,7 +41,7 @@ function fetchData(url = "http://localhost:5000/oceanapp/v1.0/jsonsql?precomp=tr
             .then(checkStatus)
             .then( response => response.json() )
             .then(json => dispatch( receiveData(json)))
-            .catch((err) => dispatch( receiveFailure()) );
+            /* .catch((err) => dispatch( receiveFailure()) ); */
         
     }
 }

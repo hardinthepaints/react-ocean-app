@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { Horizontal, Vertical } from 'react-stack';
 import ContainerDimensions from 'react-container-dimensions'
 
+
 var FPSStats = require('react-stats').FPSStats;
 var __DEV__ = true;
 
@@ -72,7 +73,7 @@ class AsyncApp extends Component {
     /* Play the animation */
     play(){
         
-        var start, progress, nextFrame;
+        var start, progress, nextFrame, lastFrame;
         
         const { dispatch } = this.props;
         const { speed, range, animationRequestID } = this.props.ui;
@@ -91,6 +92,8 @@ class AsyncApp extends Component {
             
             /* Select the next frame from the array of available frames */
             nextFrame = (currentFrame + Math.round(progress/(100 - speed))) % ( framesInRange.length );
+
+            
             
             /* cancel the last animation request if necessary */
             if ( animationRequestID  ) cancelAnimationFrame( animationRequestID  );
@@ -98,12 +101,12 @@ class AsyncApp extends Component {
             /* Change the state to the next frame */
             dispatch( setCurrentFrame( framesInRange[ nextFrame ], requestAnimationFrame(step) ));
             
+            lastFrame = nextFrame;
+            
             /* Fetch data if necessary */
             //dispatch( fetchDataIfNeeded( framesInRange[ nextFrame ] ));
 
         }
-        
-        
         
         dispatch(setCurrentFrame( currentFrame, requestAnimationFrame(step) ));
            
@@ -143,67 +146,73 @@ class AsyncApp extends Component {
         
         
         return (
-        <Vertical alignItems={'center'} alignContent={'space-around'} >
-            {/*Modal */}
-            <MyNavBar/>
             
-            <Horizontal alignItems={'center'} alignContent={'space-around'} className="Inner">
-                <div className = "navbar navbar-default Left">      
+            <Vertical alignItems={'center'} alignContent={'space-around'} >
+                    {/*NavBar */}
+                    <MyNavBar/>            
+
                 
-                    <div className = "Wrap">
-                      <PlayPauseButton onClick={this.handleButtonClick} value={this.props.ui.isPlaying}/>
-                    </div>
+                    <Horizontal alignItems={'center'} alignContent={'space-around'} className="Inner">
+
                     
-                    {/* Scubber */}
-                    <div className = "Wrap">
-                        <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                            <span  className="SmallGrayFont">{"frame:"}</span>
-                            <span className="LargeGrayFont"> {this.props.ui.currentFrame} </span>
-                        </Horizontal>
+                        <div className = "navbar navbar-default Left">      
+                        
+                            <div className = "Wrap">
+                              <PlayPauseButton onClick={this.handleButtonClick} value={this.props.ui.isPlaying}/>
+                            </div>
+                            
+                            {/* Scubber */}
+                            <div className = "Wrap">
+                                <Horizontal alignItems={'center'} alignContent={'space-around'} >
+                                    <span  className="SmallGrayFont">{"frame:"}</span>
+                                    <span className="LargeGrayFont"> {this.props.ui.currentFrame} </span>
+                                </Horizontal>
+                            
+                              <MySlider onChange={this.handleChange} value={this.props.ui.currentFrame} min={0}
+                              max={this.getMaxFrame()} />
+                            </div>
+                            
+                            {/* Range slider */}
+                              <div className = "Wrap">
+                                <Horizontal alignItems={'center'} alignContent={'space-around'} >
+                                    <span className="LargeGrayFont" >{ "[" + this.props.ui.range[0] + ":" + this.props.ui.range[1] + "]"}</span>
+                                </Horizontal>
+                              <MyRange onChange={this.handleRangeChange} value={this.props.ui.range} min={0} max={this.getMaxFrame()}  />
+                            </div>
+                            
+                            {/* Speed slider */}
+                            <div className = "Wrap">
+                                <Horizontal alignItems={'center'} alignContent={'space-around'} >
+                                    <span  className="SmallGrayFont">{"speed:"}</span>
+                                    <span  className="LargeGrayFont">{this.props.ui.speed}</span>
+                                </Horizontal>
+                              <MySlider onChange={this.handleSpeedChange} value={this.props.ui.speed} min={0} max={99} />
+                            </div>
+                        
+                          
+                        </div>
+    
                     
-                      <MySlider onChange={this.handleChange} value={this.props.ui.currentFrame} min={0}
-                      max={this.getMaxFrame()} />
-                    </div>
+                        <div className = "Right">
+                            <ContainerDimensions >
+                                { ({ width, height }) => 
+                                    <HeatmapUI
+                                        frames={this.props.frames}
+                                        currentFrame={this.props.ui.currentFrame}
+                                        width={width}
+                                        height={height}
+                                        id={"graphDiv"}
+                                        />
+                                }
+                            </ContainerDimensions>
+                        </div>
+                        
+                    </Horizontal>
+                    {/*Stats */}
+                    <FPSStats isActive={__DEV__} />
                     
-                    {/* Range slider */}
-                      <div className = "Wrap">
-                        <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                            <span className="LargeGrayFont" >{ "[" + this.props.ui.range[0] + ":" + this.props.ui.range[1] + "]"}</span>
-                        </Horizontal>
-                      <MyRange onChange={this.handleRangeChange} value={this.props.ui.range} min={0} max={this.getMaxFrame()}  />
-                    </div>
-                    
-                    {/* Speed slider */}
-                    <div className = "Wrap">
-                        <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                            <span  className="SmallGrayFont">{"speed:"}</span>
-                            <span  className="LargeGrayFont">{this.props.ui.speed}</span>
-                        </Horizontal>
-                      <MySlider onChange={this.handleSpeedChange} value={this.props.ui.speed} min={0} max={99} />
-                    </div>
-        
-                  
-                </div>
-            
-            
-                <div className = "Right">
-                    <ContainerDimensions >
-                        { ({ width, height }) => 
-                            <HeatmapUI
-                                frames={this.props.frames}
-                                currentFrame={this.props.ui.currentFrame}
-                                width={width}
-                                height={height}
-                                id={"graphDiv"}
-                                />
-                        }
-                    </ContainerDimensions>
-                </div>
-                
-            </Horizontal>
-            {/*Stats */}
-            <FPSStats isActive={__DEV__} /> 
-        </Vertical>
+            </Vertical>
+
         )
     }
 }

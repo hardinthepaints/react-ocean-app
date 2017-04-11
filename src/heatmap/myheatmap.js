@@ -12,7 +12,6 @@ export default class MyHeatmap{
     
     constructor( div, json, width, height ){
         
-                
         /* Bind functions which will be accessed outside of variable */
         this.initHeatmap = this.initHeatmap.bind( this )
         this.playFrames = this.playFrames.bind( this )
@@ -38,10 +37,26 @@ export default class MyHeatmap{
         layout.width = width;
         
         this.initHeatmap(json);
-        
+        //this.addFrames(json);
         
     }
-      
+    
+    //play( frames ){
+    //    
+    //    frames = Array.apply(null, Array(10000)).map(function (_, i) {return i % frames.length ;});
+    //    
+    //    this.addFrames(frames)
+    //    //Plotly.animate(this.div, [], {mode: 'next'});
+    //    /* Begin with initial animation */
+    //    
+    //    var settings =  updatemenus[0]['buttons'][0]['args'][1]
+    //    Plotly.animate(this.div, frames, settings);
+    //  
+    //}
+    //
+    //pause(){
+    //    Plotly.animate(this.div, [], settings);
+    //}
     /* Initially plot the map with one frame of data */
     initHeatmap( json ){
         
@@ -54,17 +69,16 @@ export default class MyHeatmap{
                 z: z,
                 /* x: json.lonp,
                 y: json.latp, */
-                hoverinfo:"z+text",            
+                /*hoverinfo:"z+text",  */          
                 type: 'heatmapgl',
                 colorscale: 'Jet',
                 opacity: 1.0,
                 reversescale: false,
                 name:'trace0',
                 connectgaps: false,
-                zsmooth:"fast",
-                zauto:true,
-                /* zmin:15,
-                zmax:33,*/
+                /* zauto:true,*/
+                zmin:0,
+                zmax:33,
             }
         ];
         
@@ -82,6 +96,7 @@ export default class MyHeatmap{
     }
         
     playFrames( json ){
+                
         /* Make the frames to animate */        
         var processedFrames = [];
         
@@ -96,6 +111,25 @@ export default class MyHeatmap{
         Plotly.animate(this.div, processedFrames, updatemenus[0]['buttons'][0]['args'][1]);
     }
     
+    //playFrame(frame){
+    //    Plotly.animate(this.div, [frame], updatemenus[0]['buttons'][0]['args'][1]);
+    //}
+    
+    addFrames( json ) {
+        /* Make the frames to animate */        
+        var processedFrames = [];
+        
+        const formatFrame = this.formatFrame;
+        
+        //Object.keys( json.frames ).map( function( key, index ){
+        json.map( function( frame, key ){
+          
+            processedFrames.push( formatFrame(frame, key) );
+        });
+        
+        Plotly.addFrames(this.div, processedFrames)
+    }
+    
     /* Format frame data from the server so plotly can interpret */
     formatFrame( frame, key ){
             return {
@@ -107,48 +141,4 @@ export default class MyHeatmap{
             };       
         
     }
-                
-    
-    /* Bind plotly event listeners*/
-    bindEventListeners(){
-        
-        function stringify( obj ){
-            var props = "{"
-            if (obj !== null) { 
-                for (var propertyname in obj) {
-                    props = props + propertyname + ", ";
-                }
-            }
-
-            return props + "}"         
-        }
-        
-        var myPlot = document.getElementById( this.div )
-        var plotData = myPlot.data;
-        console.log( stringify( myPlot.data ) );
-        
-        myPlot.on('plotly_restyle', function(){
-            console.log("restyle");
-        });
-        
-        myPlot.on('plotly_relayout', function(data){
-            console.log("relayout traces:" );
-        });
-        
-        /* No data provided */
-        myPlot.on('plotly_animated', function(  data ){           
-            console.log("animated " + stringify( plotData ));
-            
-        });
-        
-        myPlot.on('plotly_redraw', function(){
-            console.log("redraw");
-        });
-        
-        myPlot.on('plotly_afterplot', function(){
-            console.log("afterplot");
-        });
-    }
-    
-    
 }

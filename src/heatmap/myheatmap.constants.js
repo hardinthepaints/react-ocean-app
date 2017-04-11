@@ -29,8 +29,8 @@ export const updatemenus = [{
     "buttons": [{
       "method": "animate",
       "args": [null, {
-        "fromcurrent": true,
-        "mode": "immediate",
+        /*"fromcurrent": true,*/
+        /* "mode": "next", */
         "transition": {
           "duration": 0,
         },
@@ -38,7 +38,6 @@ export const updatemenus = [{
           "duration": 0,
           "redraw":false,
           "relayout":false,
-          
         }
       }],
       "label": "Play"
@@ -53,7 +52,8 @@ export const updatemenus = [{
           },
           "frame": {
             "duration": 0,
-            "redraw": false
+            "redraw": false,
+            "relayout":false
           }
         }
       ],
@@ -70,7 +70,7 @@ export var trace = [
         type: 'heatmapgl',
         /* colorscale: 'Jet', */
         colorscale: [
-            ['0.0', 'rgba(165,0,38,255)'],
+            ['0.0', 'rgba(165,0,38,0)'],
             ['0.111111111111', 'rgb(215,48,39)'],
             ['0.222222222222', 'rgb(244,109,67)'],
             ['0.333333333333', 'rgb(253,174,97)'],
@@ -93,8 +93,7 @@ export var trace = [
         colorbar:{
             xanchor: "left",
             yanchor:'center',
-            thickness: 30,
-            xpad:10,
+            xpad:0,
         }
 
     }

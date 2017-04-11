@@ -14,7 +14,7 @@ class HeatmapUI extends Component {
     this.state={
         myheatmap:null
     }
-    //this.calculateDims = this.calculateDims.bind(this)
+    this.getWidthHeight = this.getWidthHeight.bind(this)
   }
   
   componentDidMount(props){
@@ -23,19 +23,27 @@ class HeatmapUI extends Component {
   }
   
   componentDidUpdate( prevProps ){
-    const {id, frames, currentFrame, width, height} = this.props
+    const {id, frames, currentFrame} = this.props
     if (prevProps.frames.length===0 && frames.length>0) {
-        this.setState( {myheatmap:new MyHeatmap(id, [frames[currentFrame]], width, height)})
+        const{width, height} = this.getWidthHeight();
+        this.setState( {myheatmap:new MyHeatmap(id, frames, width, height)})
     }
     
     if ( this.state.myheatmap && (prevProps.currentFrame !== currentFrame)) {
-        this.state.myheatmap.playFrames([ frames[currentFrame] ])
+        this.state.myheatmap.playFrames([frames[currentFrame]])
     }
+  }
+  
+  getWidthHeight(){
+      const {frames, width, height} = this.props
+      var ratio = frames[0].ratio
+      return {width:width, height:width/ratio}
   }
 
   render() {
-      const {frames, id, width, height} = this.props
+      const {frames, id} = this.props
       if (frames && frames.length>0) {
+        const{width, height} = this.getWidthHeight();
         return (
           <div id={id}
               className={id}

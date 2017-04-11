@@ -1,6 +1,6 @@
 .navbar-container {
   z-index:3;
-  position:absolute;
+  position:fixed;
   margin-top: 20px;
 
 }
@@ -19,7 +19,7 @@
 }
 
 .App-logo {
-  animation: App-logo-spin infinite 20s linear;
+  /* animation: App-logo-spin infinite 20s linear; */
   width:100px;
 }
 

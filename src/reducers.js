@@ -52,6 +52,8 @@ function isPlaying( isPlaying = false, action ){
             return !isPlaying
         case SCRUBBER:            
             return false
+        case RECEIVE_DATA:
+            return true
         default:
             return isPlaying
     }
