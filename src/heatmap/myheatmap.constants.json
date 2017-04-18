@@ -1,0 +1,72 @@
+{
+    "animationAttribs":{
+        "mode": "immediate",
+        "transition": {
+            "duration": 0
+        },
+        "frame": {
+            "duration": 0,
+            "redraw": false
+        }
+    },
+    "trace": [
+        {
+            "z": "test",
+            "zauto":false,
+            "zmin":0,
+            "zmax":33,
+            "type": "heatmapgl",
+            "colorscale": [
+                ["0.0", "rgba(165,0,38,0)"],
+                ["0.111111111111", "rgb(215,48,39)"],
+                ["0.222222222222", "rgb(244,109,67)"],
+                ["0.333333333333", "rgb(253,174,97)"],
+                ["0.444444444444", "rgb(254,224,144)"],
+                ["0.555555555556", "rgb(224,243,248)"],
+                ["0.666666666667", "rgb(171,217,233)"],
+                ["0.777777777778", "rgb(116,173,209)"],
+                ["0.888888888889", "rgb(69,117,180)"],
+                ["1.0", "rgba(49,54,149,255)"]
+            ],
+            "opacity": 1,
+            "reversescale": false,
+            "connectgaps": false,
+            "showscale":true,
+            "colorbar":{
+                "thicknessmode":"pixels",
+                "thickness": 30,
+                "xanchor": "left",
+                "yanchor":"center",
+                "xpad":10,
+                "ypad":10,
+                "x" : 1,
+                "len" : 1,
+                "tick0":0,
+                "dtick":2.5,
+                "tickwidth":2,
+                "ticklen":10,
+                "tickangle":0,
+                "tickfont":{
+                    "family":"Helvetica",
+                    "size":20
+                }
+    
+            }
+    
+        }
+    ],
+    "layout": {
+        "autosize":false,
+        "margin": {
+            "t": 0,
+            "r": 100,
+            "b": 0,
+            "l": 0,
+            "autoexpand":false
+        },
+        "paper_bgcolor":"#7f7f7f",
+        "plot_bgcolor":"#c7c7c7"
+    }
+    
+    
+}
