@@ -1,5 +1,4 @@
 import React, { Component, PropTypes  } from 'react';
-import '../App.css'; 
 
 import { Range } from 'rc-slider';
 import './MySlider.css';

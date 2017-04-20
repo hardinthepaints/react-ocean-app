@@ -16,7 +16,7 @@ function Controls(props){
         <div className="navbar navbar-default Left">
         
             <div className="Wrap">
-              <MyToggle onClick={props.handleButtonClick} value={isPlaying}/>
+              <MyToggle onClick={props.handleButtonClick} value={isPlaying} id={"playPauseButton"}/>
             </div>
             
             {/* Scubber */}
