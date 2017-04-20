@@ -13,7 +13,7 @@ import ToggleButton from 'react-toggle-button';
 const PAUSE = React.createElement("strong",{},"| |");
 const PLAY =  React.createElement("x",{},"\u25B6");
 
-class PlayPauseButton extends Component {
+class MyToggle extends Component {
   
   render() {
     
@@ -23,8 +23,8 @@ class PlayPauseButton extends Component {
         
         value={this.props.value}
         onToggle={this.props.onClick}
-        activeLabel={ PAUSE }
-        inactiveLabel={ PLAY }
+        activeLabel={ this.props.active ? this.props.active : PAUSE }
+        inactiveLabel={ this.props.inactive ? this.props.inactive : PLAY }
         trackStyle={{width:500, height:25}}
         thumbStyle={{width:25, height:25, left:-5,}}
         animateThumbStyleHover={(n) => {
@@ -55,9 +55,9 @@ class PlayPauseButton extends Component {
 
 }
 
-PlayPauseButton.PropTypes = {
+MyToggle.PropTypes = {
   onClick:PropTypes.func.isRequired,
   value:PropTypes.bool.isRequired
 }
 
-module.exports = PlayPauseButton;
+module.exports = MyToggle;

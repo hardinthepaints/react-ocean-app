@@ -19,20 +19,20 @@
   align-items: center;
   justify-content: space-around;
   flex-direction: column;
-  height: 400px;
+  height: 500px;
   width:300px;
   float: left;
   margin-left: 32px;
   margin-right: 20px
 
-
 }
 .Right{
   z-index: 0;
-  /* 
-  justify-content: space-around;
-  flex-direction: column;
-  overflow: hidden;*/
+  
+  display:flex;
+  justify-content:flex-end;
+  flex-direction:row;
+  
   float: right;
   position: absolute;
   /* left: 50%;*/
@@ -40,15 +40,6 @@
   width: 100%;
   margin-right: 40px;
 }
-.RoundGray{
-  border-radius: 3px;
-  border-width: 1px;
-  background-color:lightgray;
-  border-style: solid;
-  border-color: gray;
-}
-
-
 
 .Inner{
   position: absolute;
@@ -73,10 +64,5 @@
   margin-right: 30px;
 
 }
-.Root{
-  display: inline-block;
-  width: 100%;
-  height: 100vh;
-  
-}
+
 

@@ -1,21 +1,16 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Horizontal, Vertical } from 'react-stack';
-import ContainerDimensions from 'react-container-dimensions'
-
+import ContainerDimensions from 'react-container-dimensions';
 
 var FPSStats = require('react-stats').FPSStats;
 var __DEV__ = true;
 
-import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame } from '../actions'
+import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame, modeToggle } from '../actions'
 
 /* Import my custom components */
-import MySlider from '../components/MySlider'
-import MyRange from '../components/MyRange'
 import HeatmapUI from '../components/HeatmapUI'
-import PlayPauseButton from '../components/PlayPauseButton'
-import MyNavBar from '../components/MyNavBar'
-
+import Controls from '../components/Controls'
 
 var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                         window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -33,7 +28,10 @@ class AsyncApp extends Component {
         this.handleSpeedChange = this.handleSpeedChange.bind( this )
         this.play = this.play.bind( this )
         this.pause = this.pause.bind( this )
-        //this.getMaxFrame = this.getMaxFrame.bind( this )
+        this.handleModeToggle = this.handleModeToggle.bind(this)
+        this.getHeatmap = this.getHeatmap.bind(this);
+        this.getMapbox = this.getMapbox.bind(this);
+        this.getMaxFrame = this.getMaxFrame.bind( this )
     }
     
     componentDidMount(){
@@ -43,8 +41,7 @@ class AsyncApp extends Component {
     }
     
     componentDidUpdate( prevProps ){
-        const { dispatch } = this.props;
-        const { currentFrame, isPlaying } = this.props.ui;
+        const { isPlaying } = this.props.ui;
         
         /* If the state just changed to playing */
         if ( isPlaying !== prevProps.ui.isPlaying ) {
@@ -96,15 +93,12 @@ class AsyncApp extends Component {
             
             
             /* cancel the last animation request if necessary */
-            if ( animationRequestID  ) cancelAnimationFrame( animationRequestID  );
+            //if ( animationRequestID  ) cancelAnimationFrame( animationRequestID  );
             
             /* Change the state to the next frame */
             dispatch( setCurrentFrame( framesInRange[ nextFrame ], requestAnimationFrame(step) ));
             
             lastFrame = nextFrame;
-            
-            /* Fetch data if necessary */
-            //dispatch( fetchDataIfNeeded( framesInRange[ nextFrame ] ));
 
         }
         
@@ -130,11 +124,15 @@ class AsyncApp extends Component {
     }
     
     handleSpeedChange( speed ){
-        this.props.dispatch( speedSlider(speed) )
+        this.props.dispatch( speedSlider(speed) );
         if ( this.props.ui.isPlaying ) {
             this.pause();
             this.play();
         }
+    }
+    
+    handleModeToggle(){
+        this.props.dispatch( modeToggle() )
     }
     
     getMaxFrame(){
@@ -142,69 +140,55 @@ class AsyncApp extends Component {
         return !frames || (frames.length==0) ? 100 : frames.length - 1;
     }
     
+    getHeatmap(){
+        return (
+            <ContainerDimensions >
+                { ({ width, height }) =>
+                    
+                    <HeatmapUI
+                        frames={this.props.frames}
+                        currentFrame={this.props.ui.currentFrame}
+                        width={width}
+                        height={height}
+                        on={!this.props.mapIsOn}
+                        id={"graphDiv"}
+                    />
+    
+                }
+            </ContainerDimensions>
+        );
+    }
+    
+    getMapbox(){
+        return (
+            <div/>
+        );
+    }
+    
     render() {
         
+        const {mapIsOn} = this.props.ui
         
+        /* Either display the mapbox or hetmap component */
+        var DataVisualizer = mapIsOn ? this.getMapbox : this.getHeatmap;
+
         return (
             
             <Vertical alignItems={'center'} alignContent={'space-around'} >
-                    {/*NavBar */}
-                    <MyNavBar/>            
-
-                
                     <Horizontal alignItems={'center'} alignContent={'space-around'} className="Inner">
 
-                    
-                        <div className = "navbar navbar-default Left">      
-                        
-                            <div className = "Wrap">
-                              <PlayPauseButton onClick={this.handleButtonClick} value={this.props.ui.isPlaying}/>
-                            </div>
-                            
-                            {/* Scubber */}
-                            <div className = "Wrap">
-                                <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                                    <span  className="SmallGrayFont">{"frame:"}</span>
-                                    <span className="LargeGrayFont"> {this.props.ui.currentFrame} </span>
-                                </Horizontal>
-                            
-                              <MySlider onChange={this.handleChange} value={this.props.ui.currentFrame} min={0}
-                              max={this.getMaxFrame()} />
-                            </div>
-                            
-                            {/* Range slider */}
-                              <div className = "Wrap">
-                                <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                                    <span className="LargeGrayFont" >{ "[" + this.props.ui.range[0] + ":" + this.props.ui.range[1] + "]"}</span>
-                                </Horizontal>
-                              <MyRange onChange={this.handleRangeChange} value={this.props.ui.range} min={0} max={this.getMaxFrame()}  />
-                            </div>
-                            
-                            {/* Speed slider */}
-                            <div className = "Wrap">
-                                <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                                    <span  className="SmallGrayFont">{"speed:"}</span>
-                                    <span  className="LargeGrayFont">{this.props.ui.speed}</span>
-                                </Horizontal>
-                              <MySlider onChange={this.handleSpeedChange} value={this.props.ui.speed} min={0} max={99} />
-                            </div>
-                        
-                          
-                        </div>
-    
+                        <Controls
+                            ui={this.props.ui}
+                            handleButtonClick={this.handleButtonClick}
+                            handleModeToggle={this.handleModeToggle}
+                            handleSpeedChange={this.handleSpeedChange}
+                            handleRangeChange={this.handleRangeChange}
+                            handleChange={this.handleChange}
+                            getMaxFrame={this.getMaxFrame}  
+                        />
                     
                         <div className = "Right">
-                            <ContainerDimensions >
-                                { ({ width, height }) => 
-                                    <HeatmapUI
-                                        frames={this.props.frames}
-                                        currentFrame={this.props.ui.currentFrame}
-                                        width={width}
-                                        height={height}
-                                        id={"graphDiv"}
-                                        />
-                                }
-                            </ContainerDimensions>
+                            <DataVisualizer/>
                         </div>
                         
                     </Horizontal>
@@ -225,6 +209,7 @@ AsyncApp.propTypes = {
         speed:PropTypes.number.isRequired,
         range:PropTypes.array.isRequired,
         currentFrame:PropTypes.oneOfType( [ PropTypes.string.isRequired, PropTypes.number.isRequired ] ),
+        mapIsOn:PropTypes.bool.isRequired,
     }),                       
 
     dispatch:PropTypes.func.isRequired,
@@ -234,9 +219,7 @@ function mapStateToProps( state ) {
         
     const { ui,frames } = state;
     const {currentFrame, range, speed, isPlaying} = ui;
-    
-    //const { isFetching, data } = hours[ui.currentDate][ui.currentHour] || { isFetching:true, data:[] }
-    
+        
     return {ui,frames}
 }
 

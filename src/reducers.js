@@ -8,6 +8,7 @@ import {
     SPEED_SLIDER,
     SET_CURRENT,
     RECEIVE_DATA,
+    MODE_TOGGLE
     //REQUEST_DATA, 
 } from './actions'
 
@@ -51,9 +52,9 @@ function isPlaying( isPlaying = false, action ){
         case PLAYPAUSE_PRESS:
             return !isPlaying
         case SCRUBBER:            
-            return false
+            return false;
         case RECEIVE_DATA:
-            return true
+            return true;
         default:
             return isPlaying
     }
@@ -92,14 +93,25 @@ function speed( state = 5, action){
     }
 }
 
-function ui(state={currentFrame:3, isPlaying:false, speed:50, range:[0,50]}, action){    
+function mapIsOn(state, action ){
+    switch(action.type){
+        case MODE_TOGGLE:
+            return !state;
+        default:
+            return state;
+    }
+}
+
+function ui(state={currentFrame:3, isPlaying:false, speed:50, range:[0,50], mapIsOn:false}, action ){    
     
     return {
         currentFrame:currentFrame( state, action ),
         range:range(state.range, action),
         speed:speed(state.speed, action),
         isPlaying:isPlaying(state.isPlaying, action),
-        animationRequestID:animationRequestID(state.animationRequestID, action)
+        animationRequestID:animationRequestID(state.animationRequestID, action),
+        mapIsOn:mapIsOn(state.mapIsOn, action)
+        
     }
     
 }
