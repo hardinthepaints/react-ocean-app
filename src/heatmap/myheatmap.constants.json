@@ -6,7 +6,8 @@
         },
         "frame": {
             "duration": 0,
-            "redraw": false
+            "redraw": false,
+            "relayout":false
         }
     },
     "trace": [
@@ -16,6 +17,7 @@
             "zmin":0,
             "zmax":33,
             "type": "heatmapgl",
+            "visible":false,
             "colorscale": [
                 ["0.0", "rgba(165,0,38,0)"],
                 ["0.111111111111", "rgb(215,48,39)"],
@@ -52,6 +54,8 @@
                 }
     
             }
+            
+
     
         }
     ],
@@ -64,8 +68,18 @@
             "l": 0,
             "autoexpand":false
         },
+        "dragmode":"select",
         "paper_bgcolor":"#7f7f7f",
-        "plot_bgcolor":"#c7c7c7"
+        "plot_bgcolor":"#c7c7c7",
+        "xaxis": {
+            "autorange": true,
+            "fixedrange":true
+
+        },
+        "yaxis": {
+            "autorange": true,
+            "fixedrange":true
+        }
     }
     
     
