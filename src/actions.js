@@ -13,6 +13,7 @@ export const SCRUBBER = "SCRUBBER";
 export const RANGE = "RANGE"
 export const SPEED_SLIDER = "SPEED_SLIDER"
 export const MODE_TOGGLE = "MODE_TOGGLE"
+export const COLOR_RANGE = "COLOR_RANGE"
 
 
 
@@ -124,3 +125,9 @@ export function modeToggle(){
     }
 }
 
+export function colorRange(range){
+    return {
+        type:COLOR_RANGE,
+        range:range
+    }
+}

@@ -8,7 +8,8 @@ import {
     SPEED_SLIDER,
     SET_CURRENT,
     RECEIVE_DATA,
-    MODE_TOGGLE
+    MODE_TOGGLE,
+    COLOR_RANGE
     //REQUEST_DATA, 
 } from './actions'
 
@@ -54,7 +55,9 @@ function isPlaying( isPlaying = false, action ){
         case SCRUBBER:            
             return false;
         case RECEIVE_DATA:
-            return true;
+            return false;
+        case COLOR_RANGE:
+            return false;
         default:
             return isPlaying
     }
@@ -102,7 +105,16 @@ function mapIsOn(state, action ){
     }
 }
 
-function ui(state={currentFrame:3, isPlaying:false, speed:50, range:[0,50], mapIsOn:false}, action ){    
+function colorRange(state, action){
+    switch (action.type){
+        case COLOR_RANGE:
+            return action.range
+        default:
+            return state
+    }
+}
+
+function ui(state={currentFrame:3, isPlaying:false, speed:50, range:[0,50], mapIsOn:false, colorRange:[29,33]}, action ){    
     
     return {
         currentFrame:currentFrame( state, action ),
@@ -110,8 +122,8 @@ function ui(state={currentFrame:3, isPlaying:false, speed:50, range:[0,50], mapI
         speed:speed(state.speed, action),
         isPlaying:isPlaying(state.isPlaying, action),
         animationRequestID:animationRequestID(state.animationRequestID, action),
-        mapIsOn:mapIsOn(state.mapIsOn, action)
-        
+        mapIsOn:mapIsOn(state.mapIsOn, action),
+        colorRange:colorRange(state.colorRange, action)
     }
     
 }

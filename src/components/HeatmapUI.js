@@ -20,7 +20,7 @@ class HeatmapUI extends Component {
   
   /* If there are frames but the heatmap is not initialized, initialize it */
   createHeatmapIfFrames(){
-      const{id, frames, currentFrame} = this.props
+      const{id, frames, currentFrame, colorRange} = this.props
 
     
       if ((!this.state.myheatmap && frames && frames.length > 0)) {
@@ -36,6 +36,10 @@ class HeatmapUI extends Component {
 
   }
   
+  shouldComponentUpdate(nextProps, nextState){
+      return true;
+  }
+  
   componentDidMount(){
       //const {id, dispatch, height} = this.props
       //dispatch( initHeatmap( id, frames ) ) ;
@@ -44,22 +48,26 @@ class HeatmapUI extends Component {
 
       this.createHeatmapIfFrames()
   }
+  componentWillUnmount(){
+    this.state.myheatmap.purge();
+  }
   
-  componentDidUpdate( prevProps ){
-    const{id, frames, currentFrame} = this.props
+  componentDidUpdate( prevProps, prevState ){
+    const{isPlaying, id, frames, currentFrame, colorRange} = this.props
     
     this.createHeatmapIfFrames()
-
-    //play a frame by providing data
-    //if ( this.state.myheatmap && (prevProps.currentFrame !== currentFrame)) {
-    //    this.state.myheatmap.playFrames([frames[currentFrame]])
-    //}
     
-    //play an already added frame if needed
-    if ( this.state.myheatmap && (prevProps.currentFrame !== currentFrame)) {
-        this.state.myheatmap.playFrame(currentFrame)
-        
-    }    
+    //play a frame if needed
+
+    
+    if ( this.state.myheatmap && ((prevProps.currentFrame !== currentFrame) || !prevState.myheatmap)) {
+        this.state.myheatmap.playFrame(currentFrame, colorRange, frames)
+    
+    /* Change the color range on the same frame */
+    } else if (!isPlaying && (colorRange[0] !== prevProps.colorRange[0] || colorRange[1] !== prevProps.colorRange[1])  ) {
+        this.state.myheatmap.changeColorRange( colorRange )
+    }
+    
   }
   
   getWidthHeight(){

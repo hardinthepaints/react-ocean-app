@@ -3,7 +3,7 @@ Based off of the animation examples from the plotly.js websites
 */
 
 import heatmapConstants from './myheatmap.constants.json'
-const {layout, trace, animationAttribs } = heatmapConstants
+const {layout, trace, animationAttribs, altcolorscale } = heatmapConstants
 
 var Plotly = require('plotly.js');
 
@@ -12,9 +12,11 @@ export default class MyHeatmap{
     constructor( div, json, width, height, svgCallBack ){
                         
         /* Bind functions which will be accessed outside of variable */
-        this.initHeatmap = this.initHeatmap.bind( this )
-        this.playFrame = this.playFrame.bind( this )
-        this.getImage = this.getImage.bind(this)    
+        this.initHeatmap = this.initHeatmap.bind( this );
+        this.playFrame = this.playFrame.bind( this );
+        this.getImage = this.getImage.bind(this);
+        this.changeColorRange = this.changeColorRange.bind(this);
+        this.purge = this.purge.bind(this)
     
         /* The id of the div which will contain the heatmap */
         this.div = div;
@@ -39,7 +41,7 @@ export default class MyHeatmap{
         console.time("initHeatmap")
         var z = json[0].z;
                 
-        var myTrace = [Object.assign({}, trace[0], {z:z, visible:true})]
+        var myTrace = [Object.assign({}, trace[0], {z:z, visible:true}), Object.assign({}, trace[0], {z:z, visible:true, colorscale:altcolorscale, showscale:false})]
         var myLayout = Object.assign({}, layout)
         
         /* Initinally plot an empty heatmap */
@@ -61,15 +63,57 @@ export default class MyHeatmap{
 
     }
     
-    /* Play a frame referenced by the given frame number */
-    playFrame(frame){
-        const {div, savedFrames} = this;
-        const graphDiv = document.getElementById( div )
+    changeColorRange(colorRange){
+        //var update = {
+        //    
+        //    data: [{
+        //        zmin:colorRange[0],
+        //        zmax:colorRange[1]
+        //    }],
+        //    traces:[0]
+        //
+        //
+        //}
+        //
+        //Plotly.animate( this.div, update, animationAttribs )
         
-        Plotly.animate(div, [frame], animationAttribs).then(() => {
-            //this.getImage(this.svgCallBack, frame)
-        })
+        Plotly.restyle(this.div, {zmin:colorRange[0],zmax:colorRange[1]}, 0);
+
+    }
+    
+    
+    /* Play a frame referenced by the given frame number */
+    playFrame(frame, colorRange=null, frames=null){
+        const {div} = this;
+        //const graphDiv = document.getElementById( div )
+        
+        if ( !colorRange ) {
+            Plotly.animate(div, [frame], animationAttribs).then(() => {
+                //this.getImage(this.svgCallBack, frame)
+            })
+        } else {
+            var myframe = {
+                name:frame+"",
+                data:[{
+                    z:frames[frame].z,
+                    zmin:colorRange[0],
+                    zmax:colorRange[1]
+                }],
+                traces:[0]
+
+            }
+            Plotly.animate(div, [myframe], animationAttribs).then(() => {})
+            
+            //console.log( myframe.data[0] )
+            //myframe.data[0].z = frames[frame].z 
+            //Plotly.restyle(div, myframe.data[0], 0)
+        }
+
                 
+    }
+    
+    purge(){
+        Plotly.purge(this.div)
     }
     
     /* Add the frames using plotly's addFrames method */

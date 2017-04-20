@@ -6,7 +6,7 @@ import ContainerDimensions from 'react-container-dimensions';
 var FPSStats = require('react-stats').FPSStats;
 var __DEV__ = true;
 
-import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame, modeToggle } from '../actions'
+import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame, modeToggle, colorRange } from '../actions'
 
 /* Import my custom components */
 import HeatmapUI from '../components/HeatmapUI'
@@ -31,7 +31,8 @@ class AsyncApp extends Component {
         this.handleModeToggle = this.handleModeToggle.bind(this)
         this.getHeatmap = this.getHeatmap.bind(this);
         this.getMapbox = this.getMapbox.bind(this);
-        this.getMaxFrame = this.getMaxFrame.bind( this )
+        this.getMaxFrame = this.getMaxFrame.bind( this );
+        this.handleColorRange = this.handleColorRange.bind(this);
     }
     
     componentDidMount(){
@@ -135,25 +136,31 @@ class AsyncApp extends Component {
         this.props.dispatch( modeToggle() )
     }
     
+    handleColorRange(range){
+        this.props.dispatch(colorRange(range))
+    }
+    
     getMaxFrame(){
         const {frames} = this.props;
         return !frames || (frames.length==0) ? 100 : frames.length - 1;
     }
     
+    /* Get the component representing the heatmap */
     getHeatmap(){
+        
+        const {currentFrame, colorRange, isPlaying} = this.props.ui;
         return (
             <ContainerDimensions >
                 { ({ width, height }) =>
-                    
                     <HeatmapUI
                         frames={this.props.frames}
-                        currentFrame={this.props.ui.currentFrame}
+                        currentFrame={currentFrame}
                         width={width}
                         height={height}
-                        on={!this.props.mapIsOn}
                         id={"graphDiv"}
+                        colorRange={colorRange}
+                        isPlaying={isPlaying}
                     />
-    
                 }
             </ContainerDimensions>
         );
@@ -167,10 +174,8 @@ class AsyncApp extends Component {
     
     render() {
         
-        const {mapIsOn} = this.props.ui
-        
-        /* Either display the mapbox or hetmap component */
-        var DataVisualizer = mapIsOn ? this.getMapbox : this.getHeatmap;
+        const {mapIsOn, currentFrame} = this.props.ui
+        const {frames} = this.props;
 
         return (
             
@@ -179,16 +184,18 @@ class AsyncApp extends Component {
 
                         <Controls
                             ui={this.props.ui}
+                            dateString={frames.length>0 ? frames[currentFrame].yyyymmddhh : ""}
                             handleButtonClick={this.handleButtonClick}
                             handleModeToggle={this.handleModeToggle}
                             handleSpeedChange={this.handleSpeedChange}
                             handleRangeChange={this.handleRangeChange}
                             handleChange={this.handleChange}
-                            getMaxFrame={this.getMaxFrame}  
+                            getMaxFrame={this.getMaxFrame}
+                            handleColorRange={this.handleColorRange}
                         />
                     
                         <div className = "Right">
-                            <DataVisualizer/>
+                            {mapIsOn ? this.getMapbox() : this.getHeatmap()}
                         </div>
                         
                     </Horizontal>

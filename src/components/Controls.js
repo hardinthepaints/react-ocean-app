@@ -4,19 +4,22 @@ import { Horizontal } from 'react-stack';
 import MySlider from './MySlider'
 import MyRange from './MyRange'
 import MyToggle from './MyToggle'
-import MyNavBar from './MyNavBar'
 import './Controls.css'
 
 /* Logic for how the controls look */
 function Controls(props){
     
-    const{isPlaying, currentFrame, range, speed, mapIsOn} = props.ui;
+    const{isPlaying, currentFrame, range, speed, mapIsOn, colorRange} = props.ui;
+    const {dateString} = props;
+    
+    const MODE_MAP_ON = "MAP";
+    const MODE_MAP_OFF = "PLOT";
     
     return (
         <div className="navbar navbar-default Left">
         
             <div className="Wrap">
-              <MyToggle onClick={props.handleButtonClick} value={isPlaying} id={"playPauseButton"}/>
+              <MyToggle onClick={props.handleButtonClick} value={isPlaying}/>
             </div>
             
             {/* Scubber */}
@@ -38,19 +41,27 @@ function Controls(props){
               <MyRange onChange={props.handleRangeChange} value={range} min={0} max={props.getMaxFrame()}  />
             </div>
             
-            {/* Speed slider */}
-            <div className="Wrap">
+            
+            {/* Color Slider */}
+              <div className="Wrap">
                 <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                    <span  className="SmallGrayFont">{"speed:"}</span>
-                    <span  className="LargeGrayFont">{speed}</span>
+                    <span className="SmallGrayFont" >{ "Color Range" }</span>
                 </Horizontal>
-              <MySlider onChange={props.handleSpeedChange} value={speed} min={0} max={99} />
+              <MyRange onChange={props.handleColorRange} value={colorRange} min={0} max={33}  />
             </div>
             
             {/*NavBar */}
             <div className = "Wrap">
+                
+                <MyToggle onClick={props.handleModeToggle} value={mapIsOn} active={MODE_MAP_OFF} inactive={MODE_MAP_ON}/>
+
+            </div>
             
-                <MyNavBar onModeToggle={props.handleModeToggle} isMapOn={mapIsOn}/>
+            {/*data readout*/}
+            <div className = "Wrap">
+                <Horizontal alignItems={'center'} alignContent={'space-around'} >
+                    <span className="SmallGrayFont" >{ dateString }</span>
+                </Horizontal>
             </div>
         </div>        
         
