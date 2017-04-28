@@ -1,9 +1,0 @@
-.Play{
-  width:30px;
-  height:30px;
-  left:-7px;
-}
-
-.grow { transition: all .2s ease-in-out; }
-.Play:hover { transform: scale(1.1); }
-

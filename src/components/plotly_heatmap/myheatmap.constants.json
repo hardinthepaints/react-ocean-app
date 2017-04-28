@@ -1,0 +1,100 @@
+{
+    "animationAttribs":{
+        "mode": "immediate",
+        "transition": {
+            "duration": 0
+        },
+        "frame": {
+            "duration": 0,
+            "redraw": false,
+            "relayout":false
+        }
+    },
+    "trace": [
+        {
+            "z": "test",
+            "zauto":false,
+            "zmin":0,
+            "zmax":33,
+            "zsmooth":false,
+            "type": "heatmapgl",
+            "visible":false,
+            "colorscale": [
+                ["0.0", "rgb(165,0,38)"],
+                ["0.111111111111", "rgb(215,48,39)"],
+                ["0.222222222222", "rgb(244,109,67)"],
+                ["0.333333333333", "rgb(253,174,97)"],
+                ["0.444444444444", "rgb(254,224,144)"],
+                ["0.555555555556", "rgb(224,243,248)"],
+                ["0.666666666667", "rgb(171,217,233)"],
+                ["0.777777777778", "rgb(116,173,209)"],
+                ["0.888888888889", "rgb(69,117,180)"],
+                ["1.0", "rgb(49,54,149)"]
+            ],
+            "opacity": 1,
+            "reversescale": false,
+            "connectgaps": false,
+            "showscale":true,
+            "colorbar":{
+                "thicknessmode":"pixels",
+                "thickness": 30,
+                "xanchor": "left",
+                "yanchor":"center",
+                "xpad":10,
+                "ypad":10,
+                "x" : 1,
+                "len" : 1,
+                "tick0":0,
+                "dtick":1,
+                "tickwidth":2,
+                "ticklen":10,
+                "tickangle":0,
+                "tickfont":{
+                    "family":"Helvetica",
+                    "size":20
+                }
+    
+            }
+            
+
+    
+        }
+    ],
+    "altcolorscale": [
+        ["0.0", "rgb(0,0,0)"],
+        ["0.0000111111111111", "rgba(215,48,39, 0)"],
+        ["0.222222222222", "rgba(244,109,67, 0)"],
+        ["0.333333333333", "rgba(253,174,97, 0)"],
+        ["0.444444444444", "rgba(254,224,144,0)"],
+        ["0.555555555556", "rgba(224,243,248,0)"],
+        ["0.666666666667", "rgba(171,217,233,0)"],
+        ["0.777777777778", "rgba(116,173,209,0)"],
+        ["0.888888888889", "rgba(69,117,180,0)"],
+        ["1.0", "rgba(49,54,149,0)"]
+    ],
+    "layout": {
+        "hovermode":false,
+        "autosize":false,
+        "margin": {
+            "t": 0,
+            "r": 100,
+            "b": 0,
+            "l": 0,
+            "autoexpand":false
+        },
+        "dragmode":"select",
+        "paper_bgcolor":"#7f7f7f",
+        "plot_bgcolor":"#c7c7c7",
+        "xaxis": {
+            "autorange": true,
+            "fixedrange":true
+
+        },
+        "yaxis": {
+            "autorange": true,
+            "fixedrange":true
+        }
+    }
+    
+    
+}

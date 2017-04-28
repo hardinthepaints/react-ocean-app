@@ -9,7 +9,8 @@ import {
     SET_CURRENT,
     RECEIVE_DATA,
     MODE_TOGGLE,
-    COLOR_RANGE
+    COLOR_RANGE,
+    ARROW,
     //REQUEST_DATA, 
 } from './actions'
 
@@ -28,7 +29,8 @@ function currentFrame( state, action ){
         
         case SCRUBBER:
             return getCorrectFrame( action.frame, state.range );
-
+        
+        case ARROW:
         case SET_CURRENT:
             return getCorrectFrame( action.frame, state.range );
         
@@ -47,7 +49,8 @@ function animationRequestID( animationRequestID=null, action ){
     
 }
 
-function isPlaying( isPlaying = false, action ){
+
+function isPlaying( isPlaying, action ){
         
     switch (action.type){
         case PLAYPAUSE_PRESS:
@@ -58,8 +61,11 @@ function isPlaying( isPlaying = false, action ){
             return false;
         case COLOR_RANGE:
             return false;
+        case ARROW:
+            return false;
         default:
             return isPlaying
+        
     }
 }
 
@@ -110,11 +116,20 @@ function colorRange(state, action){
         case COLOR_RANGE:
             return action.range
         default:
-            return state
+            return state;
     }
 }
 
-function ui(state={currentFrame:3, isPlaying:false, speed:50, range:[0,50], mapIsOn:false, colorRange:[29,33]}, action ){    
+function allowedFrames( state=[1,2,3,4], action ){
+    switch(action.type){
+        case RANGE:
+            return action.allowedFrames;
+        default:
+            return state;
+    }
+}
+
+function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], mapIsOn:true, colorRange:[10,33]}, action ){    
     
     return {
         currentFrame:currentFrame( state, action ),
@@ -131,6 +146,7 @@ function ui(state={currentFrame:3, isPlaying:false, speed:50, range:[0,50], mapI
 const rootReducer = combineReducers({
     ui,
     frames,
+    allowedFrames,
 })
 
 export default rootReducer;

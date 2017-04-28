@@ -14,6 +14,7 @@ export const RANGE = "RANGE"
 export const SPEED_SLIDER = "SPEED_SLIDER"
 export const MODE_TOGGLE = "MODE_TOGGLE"
 export const COLOR_RANGE = "COLOR_RANGE"
+export const ARROW = "ARROW"
 
 
 
@@ -106,9 +107,11 @@ export function scrubber( frame ){
 }
 
 export function range( range ){
+        
     return {
         type : RANGE,
         range : range,
+        allowedFrames:Array.apply(null, Array(range[1] - range[0] + 1)).map(function (_, i) {return i + range[0];})
     }
 }
 
@@ -129,5 +132,12 @@ export function colorRange(range){
     return {
         type:COLOR_RANGE,
         range:range
+    }
+}
+
+export function arrow(frame){
+    return {
+        type : ARROW,
+        frame:frame
     }
 }

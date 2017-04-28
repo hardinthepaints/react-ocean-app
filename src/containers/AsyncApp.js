@@ -6,11 +6,13 @@ import ContainerDimensions from 'react-container-dimensions';
 var FPSStats = require('react-stats').FPSStats;
 var __DEV__ = true;
 
-import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame, modeToggle, colorRange } from '../actions'
+import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame, modeToggle, colorRange, arrow } from '../actions'
 
 /* Import my custom components */
-import HeatmapUI from '../components/HeatmapUI'
-import Controls from '../components/Controls'
+import HeatmapUI from '../components/plotly_heatmap/HeatmapUI'
+import Controls from '../components/controls/Controls'
+import MyThree from '../components/three/MyThree'
+
 
 var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                         window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -30,9 +32,9 @@ class AsyncApp extends Component {
         this.pause = this.pause.bind( this )
         this.handleModeToggle = this.handleModeToggle.bind(this)
         this.getHeatmap = this.getHeatmap.bind(this);
-        this.getMapbox = this.getMapbox.bind(this);
         this.getMaxFrame = this.getMaxFrame.bind( this );
         this.handleColorRange = this.handleColorRange.bind(this);
+        this.handleArrow = this.handleArrow.bind(this)
     }
     
     componentDidMount(){
@@ -41,12 +43,12 @@ class AsyncApp extends Component {
         
     }
     
-    componentDidUpdate( prevProps ){
+    componentWillReceiveProps( nextProps ){
         const { isPlaying } = this.props.ui;
         
         /* If the state just changed to playing */
-        if ( isPlaying !== prevProps.ui.isPlaying ) {
-            switch( isPlaying ){
+        if ( isPlaying !== nextProps.ui.isPlaying ) {
+            switch( nextProps.ui.isPlaying ){
                 case true:
                     /* If not playing --> start animation*/
                     this.play()
@@ -73,16 +75,18 @@ class AsyncApp extends Component {
         
         var start, progress, nextFrame, lastFrame;
         
-        const { dispatch } = this.props;
+        const { dispatch, allowedFrames } = this.props;
         const { speed, range, animationRequestID } = this.props.ui;
         var currentFrame = this.props.ui.currentFrame - range[0];
         
         
         /* An array of the frames in the current range */
-        var framesInRange = Array.apply(null, Array(range[1] - range[0] + 1)).map(function (_, i) {return i + range[0];}); 
+        var framesInRange = allowedFrames;
         
         /* "step" to the next frame */
         function step( timeStamp ){
+            
+            
             if (!start) start = timeStamp;
             if (! nextFrame) nextFrame = currentFrame;
             
@@ -90,18 +94,19 @@ class AsyncApp extends Component {
             
             /* Select the next frame from the array of available frames */
             nextFrame = (currentFrame + Math.round(progress/(100 - speed))) % ( framesInRange.length );
-
+            //nextFrame = (nextFrame + 1) % ( framesInRange.length );
             
             
             /* cancel the last animation request if necessary */
             //if ( animationRequestID  ) cancelAnimationFrame( animationRequestID  );
             
+            
             /* Change the state to the next frame */
             dispatch( setCurrentFrame( framesInRange[ nextFrame ], requestAnimationFrame(step) ));
             
-            lastFrame = nextFrame;
-
+            
         }
+                
         
         dispatch(setCurrentFrame( currentFrame, requestAnimationFrame(step) ));
            
@@ -112,8 +117,7 @@ class AsyncApp extends Component {
     }
     
     handleChange( nextFrame ) {
-        this.props.dispatch( scrubber(nextFrame ) );
-        //this.props.dispatch( fetchDataIfNeeded(nextFrame));
+        this.props.dispatch( scrubber( nextFrame ) );
     }
     
     handleRangeChange(values){
@@ -166,10 +170,36 @@ class AsyncApp extends Component {
         );
     }
     
-    getMapbox(){
+    getMyThree = () =>{
+        
+        const {frames} = this.props;
+        const {currentFrame, colorRange} = this.props.ui
+        
         return (
-            <div/>
+            <ContainerDimensions >
+                { ({ width, height }) =>
+                    <MyThree
+                        width={width}
+                        height={height}
+                        frames={frames}
+                        currentFrame={currentFrame}
+                        colorRange={colorRange}/>
+                }
+            </ContainerDimensions>
         );
+    }
+    
+    handleArrow(right){
+        const {currentFrame, range, isPlaying} = this.props.ui
+        const {dispatch, allowedFrames} = this.props;
+        
+        //this.props.dispatch( scrubber( currentFrame ) );
+        var currentFrameIndex = currentFrame - range[0];
+                        
+        /* Get the next frame, and loop around if necessary*/
+        var nextFrame = allowedFrames[(currentFrameIndex + (right ? 1 : -1) + allowedFrames.length) % allowedFrames.length]
+        
+        dispatch( arrow( nextFrame ) );
     }
     
     render() {
@@ -192,10 +222,11 @@ class AsyncApp extends Component {
                             handleChange={this.handleChange}
                             getMaxFrame={this.getMaxFrame}
                             handleColorRange={this.handleColorRange}
+                            handleArrow={this.handleArrow}
                         />
                     
                         <div className = "Right">
-                            {mapIsOn ? this.getMapbox() : this.getHeatmap()}
+                            {mapIsOn ? this.getMyThree() : this.getHeatmap()}
                         </div>
                         
                     </Horizontal>
@@ -210,6 +241,8 @@ class AsyncApp extends Component {
 
 AsyncApp.propTypes = {
     frames:PropTypes.array.isRequired,
+    allowedFrames:PropTypes.array.isRequired,
+
     
     ui:PropTypes.shape( {
         isPlaying:PropTypes.bool.isRequired,
@@ -224,10 +257,10 @@ AsyncApp.propTypes = {
 
 function mapStateToProps( state ) {
         
-    const { ui,frames } = state;
+    const { ui,frames, allowedFrames } = state;
     const {currentFrame, range, speed, isPlaying} = ui;
         
-    return {ui,frames}
+    return {ui,frames, allowedFrames}
 }
 
 export default connect( mapStateToProps)(AsyncApp) ;
