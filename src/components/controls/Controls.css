@@ -14,12 +14,17 @@
 
 .Left{
   position:fixed;
+  background-color: rgb(94, 94, 94);
+  opacity:1;
+  border-width: 3px;
+  border-color: black;
+  border-radius: 5px;
   display:compact;
   z-index: 1;
   align-items: center;
   justify-content: space-around;
   flex-direction: column;
-  height: 500px;
+  height: auto;
   width:300px;
   float: left;
   margin-left: 32px;
@@ -60,8 +65,8 @@
   height:auto;
   margin-top:15px;
   margin-bottom:15px;
-  margin-left: 30px;
-  margin-right: 30px;
+  margin-left: 0px;
+  margin-right: 0px;
 
 }
 

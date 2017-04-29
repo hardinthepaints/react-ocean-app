@@ -4,6 +4,8 @@ import ReactBootstrapSlider from 'react-bootstrap-slider';
 
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
 
+
+import './MySlider.css'
 class MySlider extends Component {
     
     componentDidMount(){
@@ -27,11 +29,14 @@ class MySlider extends Component {
                 change={(result) => this.props.onChange(result.target.value)}
                 /* onBeforeChange={this.props.onChange} */
                 /* slideStop={this.props.onChange} */
-                value={this.props.value}
+                
+                {...this.props}
+                /* value={this.props.value}
                 min={this.props.min}
-                max={this.props.max}
+                max={this.props.max} */
                 handle={"square"}
                 selection={"before"}
+                
             />
         );
       

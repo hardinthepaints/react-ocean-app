@@ -17,7 +17,7 @@ function Controls(props){
     const MODE_MAP_OFF = "PLOT";
     
     return (
-        <div className="navbar navbar-default Left">
+        <div className="Left">
         
             <div className="Wrap">
             
@@ -42,15 +42,12 @@ function Controls(props){
             
             <div className="Wrap">
 
-                <MySlider onChange={props.handleChange} value={currentFrame} min={0} max={props.getMaxFrame()} />
+                <MySlider onChange={props.handleChange} value={currentFrame} min={0} rangeHighlights={[{ "start": 2, "end": 5 }]} max={props.getMaxFrame()} />
             </div>
 
             
             {/* Range slider */}
-              <div className="Wrap">
-                <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                    <span className="LargeGrayFont" >{ "[" + props.ui.range[0] + ":" + props.ui.range[1] + "]"}</span>
-                </Horizontal>
+            <div className="Wrap">
               <MySlider onChange={props.handleRangeChange} value={range} min={0} max={props.getMaxFrame()}  />
             </div>
             
