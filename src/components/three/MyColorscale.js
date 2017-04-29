@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 
-function createColorscale(colorarray) {
+function createColorscale() {
     
     const colorScaler = function(value){
         

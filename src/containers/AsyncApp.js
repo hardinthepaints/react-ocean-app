@@ -6,10 +6,9 @@ import ContainerDimensions from 'react-container-dimensions';
 var FPSStats = require('react-stats').FPSStats;
 var __DEV__ = true;
 
-import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame, modeToggle, colorRange, arrow } from '../actions'
+import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame, colorRange, arrow } from '../actions'
 
 /* Import my custom components */
-import HeatmapUI from '../components/plotly_heatmap/HeatmapUI'
 import Controls from '../components/controls/Controls'
 import MyThree from '../components/three/MyThree'
 import MyLoader from '../components/MyLoader'
@@ -25,17 +24,7 @@ class AsyncApp extends Component {
     
     constructor( props ){
         super(props);
-        this.handleChange = this.handleChange.bind( this )
-        this.handleButtonClick = this.handleButtonClick.bind( this )
-        this.handleRangeChange = this.handleRangeChange.bind( this )
-        this.handleSpeedChange = this.handleSpeedChange.bind( this )
-        this.play = this.play.bind( this )
-        this.pause = this.pause.bind( this )
-        this.handleModeToggle = this.handleModeToggle.bind(this)
-        this.getHeatmap = this.getHeatmap.bind(this);
-        this.getMaxFrame = this.getMaxFrame.bind( this );
-        this.handleColorRange = this.handleColorRange.bind(this);
-        this.handleArrow = this.handleArrow.bind(this)
+
     }
     
     componentDidMount(){
@@ -66,13 +55,13 @@ class AsyncApp extends Component {
     }
     
     /* Pause the animation */
-    pause() {
+    pause=()=> {
         const {animationRequestID} = this.props.ui;
         if (animationRequestID) cancelAnimationFrame( animationRequestID  );    
     }
     
     /* Play the animation */
-    play(){
+    play=()=>{
         
         var start, progress, nextFrame, lastFrame;
         
@@ -113,15 +102,15 @@ class AsyncApp extends Component {
            
     }
     
-    handleButtonClick(){
+    handleButtonClick=()=>{
         this.props.dispatch( playPausePress() );
     }
     
-    handleChange( nextFrame ) {
+    handleChange=( nextFrame )=> {
         this.props.dispatch( scrubber( nextFrame ) );
     }
     
-    handleRangeChange(values){
+    handleRangeChange=(values)=>{
         if ( this.props.ui.isPlaying ) {
             this.pause();
             this.play();
@@ -129,7 +118,7 @@ class AsyncApp extends Component {
         this.props.dispatch( range( values ) );        
     }
     
-    handleSpeedChange( speed ){
+    handleSpeedChange=( speed )=>{
         this.props.dispatch( speedSlider(speed) );
         if ( this.props.ui.isPlaying ) {
             this.pause();
@@ -137,44 +126,19 @@ class AsyncApp extends Component {
         }
     }
     
-    handleModeToggle(){
-        this.props.dispatch( modeToggle() )
-    }
-    
-    handleColorRange(range){
+    handleColorRange=(range)=>{
         this.props.dispatch(colorRange(range))
     }
     
-    getMaxFrame(){
+    getMaxFrame=()=>{
         const {frames} = this.props;
         return !frames || (frames.length==0) ? 100 : frames.length - 1;
-    }
-    
-    /* Get the component representing the heatmap */
-    getHeatmap(){
-        
-        const {currentFrame, colorRange, isPlaying} = this.props.ui;
-        return (
-            <ContainerDimensions >
-                { ({ width, height }) =>
-                    <HeatmapUI
-                        frames={this.props.frames}
-                        currentFrame={currentFrame}
-                        width={width}
-                        height={height}
-                        id={"graphDiv"}
-                        colorRange={colorRange}
-                        isPlaying={isPlaying}
-                    />
-                }
-            </ContainerDimensions>
-        );
     }
     
     getMyThree = () =>{
         
         const {frames} = this.props;
-        const {currentFrame, colorRange} = this.props.ui
+        const {currentFrame, colorRange, isPlaying} = this.props.ui
         
         return (
             <ContainerDimensions >
@@ -184,13 +148,15 @@ class AsyncApp extends Component {
                         height={height}
                         frames={frames}
                         currentFrame={currentFrame}
-                        colorRange={colorRange}/>
+                        colorRange={colorRange}
+                        isPlaying={isPlaying}
+                        />
                 }
             </ContainerDimensions>
         );
     }
     
-    handleArrow(right){
+    handleArrow=(right)=>{
         const {currentFrame, range, isPlaying} = this.props.ui
         const {dispatch, allowedFrames} = this.props;
         
@@ -228,11 +194,9 @@ class AsyncApp extends Component {
                     
                         <div className = "Right">
                             { (frames && frames.length>0) ?
-                                /* Either show a plotly heatmap or three.js */
-                                (mapIsOn ? this.getMyThree() : this.getHeatmap())
-                                
-                                /* If data have not come in yet, then show loader*/
-                                : <MyLoader loaded={frames.length!=0}/>
+                                /* Either show a plotly heatmap or three.js */  /* If data have not come in yet, then show loader*/
+                                this.getMyThree() : <MyLoader loaded={frames.length!=0}/>
+
                             }
                         </div>
                         
@@ -256,7 +220,6 @@ AsyncApp.propTypes = {
         speed:PropTypes.number.isRequired,
         range:PropTypes.array.isRequired,
         currentFrame:PropTypes.oneOfType( [ PropTypes.string.isRequired, PropTypes.number.isRequired ] ),
-        mapIsOn:PropTypes.bool.isRequired,
     }),                       
 
     dispatch:PropTypes.func.isRequired,
@@ -265,7 +228,7 @@ AsyncApp.propTypes = {
 function mapStateToProps( state ) {
         
     const { ui,frames, allowedFrames } = state;
-    const {currentFrame, range, speed, isPlaying} = ui;
+    const {currentFrame, range, speed, isPlaying, colorRange} = ui;
         
     return {ui,frames, allowedFrames}
 }

@@ -62,14 +62,7 @@ function Controls(props){
                 </Horizontal>
               <MySlider onChange={props.handleColorRange} value={colorRange} min={0} max={33}  />
             </div>
-            
-            {/*NavBar */}
-            <div className="Wrap">
-                <KeyHandler keyEventName={KEYUP} keyValue={"m"} onKeyHandle={props.handleModeToggle}/>
-                <MyToggle onClick={props.handleModeToggle} value={mapIsOn} active={MODE_MAP_OFF} inactive={MODE_MAP_ON}/>
-
-            </div>
-            
+                        
             {/*data readout*/}
             <div className="Wrap">
                 <Horizontal alignItems={'center'} alignContent={'space-around'} >

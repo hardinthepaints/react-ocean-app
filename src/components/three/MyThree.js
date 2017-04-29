@@ -1,11 +1,12 @@
 import React, {PropTypes, Component} from 'react';
+import ReactDOM from 'react-dom'
 import React3 from 'react-three-renderer';
 import * as THREE from 'three';
 import KeyHandler, {KEYUP } from 'react-key-handler';
 import createColorscale from './MyColorscale'
+import OrbitControls from './OrbitControls';
 
-import heatmapConstants from '../plotly_heatmap/myheatmap.constants.json'
-const {trace } = heatmapConstants
+const landColor = new THREE.Color("rgb(255, 157, 0)")
 
 
 class MyThree extends Component {
@@ -18,17 +19,21 @@ class MyThree extends Component {
         super(props, context);
     
         this.cameraPosition = new THREE.Vector3(0, 0, 300);
+        this.lightPosition = new THREE.Vector3(100, 100, 300)
+
     
         // construct the position vector here, because if we use 'new' within render,
         // React will think that things have changed when they have not.
     
-        this.colorscale = createColorscale( trace[0].colorscale )
+        this.colorscale = createColorscale()
+        
+        this.cachedFaces = {}
     
         this.state = {
             ...this.state,
             wireframe:false,
             groupRotation: new THREE.Euler(0, 0, 0),
-      };
+        };
         
         
         //this.cameraPosition = new THREE.Vector3(0, 150, 500);
@@ -39,6 +44,7 @@ class MyThree extends Component {
         this.mouseX = 0;
         this.mouseXOnMouseDown = 0;
         this.targetRotationY = 0;
+        
     }
     
     
@@ -47,63 +53,41 @@ class MyThree extends Component {
     componentDidMount(){
         const container = this.refs.container;
         
-        /* Add event listeners */
-        container.addEventListener('mousedown', this.onDocumentMouseDown, false);
-        container.addEventListener('touchstart', this.onDocumentTouchStart, false);
-        document.addEventListener('touchmove', this.onDocumentTouchMove, false);
-        
         const {currentFrame, frames} = this.props
         
         if ( frames.length > 0 ) {
-            this.assignColors( frames[currentFrame] )
+            this.assignColors( this.props )
         }
+        
+        const controls = new OrbitControls(this.refs.camera, ReactDOM.findDOMNode(this.refs.container))
+
+        this.setState({
+            controls:controls
+        });
+  
+        controls.rotateSpeed = 1.0;
+        controls.zoomSpeed = 1.2;
+        
     }
     
     componentWillReceiveProps( nextProps ){
-        console.log( "component will receive props" )
         const {currentFrame, frames, colorRange} = nextProps
 
         
         if ( frames.length > this.props.frames.length ||
             (frames.length > 0 && (currentFrame !== this.props.currentFrame || colorRange !== this.props.coloRange)) 
         ) {
-            this.assignColors( frames[currentFrame] )
+            this.assignColors( nextProps )
+            //this.colorBufferedPlane();
         }
-    }
-    
-    componentDidUpdate(prevProps){
-        console.log( "didupdate" )
-
+        
+        
     }
     
     componentWillUnmount() {
-        const container = this.refs.container;
-    
-        container.removeEventListener('mousedown', this.onDocumentMouseDown, false);
-        container.removeEventListener('touchstart', this.onDocumentTouchStart, false);
-        document.removeEventListener('touchmove', this.onDocumentTouchMove, false);
-        document.removeEventListener('mousemove', this.onDocumentMouseMove, false);
-        document.removeEventListener('mouseup', this.onDocumentMouseUp, false);
-        document.removeEventListener('mouseout', this.onDocumentMouseOut, false);
-    
+        const container = this.refs.container;    
     }
     
-    onDocumentMouseDown = (event) => {
-        event.preventDefault();
-                    
-        document.addEventListener('mousemove', this.onDocumentMouseMove, false);
-        document.addEventListener('mouseup', this.onDocumentMouseUp, false);
-        document.addEventListener('mouseout', this.onDocumentMouseOut, false);
-    
-        const {
-          width,
-        } = this.props;
-    
-        const windowHalfX = width / 2;
-    
-        this.mouseXOnMouseDown = event.clientX - windowHalfX;
-        this.targetRotationYOnMouseDown = this.targetRotationY;
-    }
     
     formatColorScale = (colorscale) => {
         for ( var i = 0; i < colorscale.length; i ++) {
@@ -124,95 +108,112 @@ class MyThree extends Component {
         return this.colorscale(value )
     }
     
-    assignColors = ( data ) => {
-        var z = data.z;
-        //z = z.reverse()
+    buildFrameKey = ( currentFrame, colorRange ) => {
+        return currentFrame + "_" + colorRange[0] + "_" + colorRange[1]
+    }
+    
+    getColorArray = ( z, index ) => {
+        var triangleCount = z.length*2
+        var colors = new Float32Array(197220)
         
-        const frame = [].concat.apply( [], z )
+        var color = new THREE.Color();
+                
         
-        const colorscale = trace[0].colorscale
-        const plane = this.refs.plane
-        if (plane) {
-                    
-            for ( var i = 0; i < plane.faces.length; i += 2 ) {
+        for (var i = 0; i<triangleCount; i += 1){
+            var value = z[i/2]
+            var hex = (value !== null) ? this.getColor(value) : landColor.getHex()
 
-                var value = frame[i / 2]
-                var face = plane.faces[ i ];
-                if ( value !== null) {
-                    var hex = this.getColor(value) ;
+            //color.setRGB( i / colors.length, i / colors.length, 1 );
+            color.setHex(hex)
+            
+            var ind
+            for (var vertexNumber = 0; vertexNumber < 2; vertexNumber++){
+                ind = index[i*3 + vertexNumber]
+            }
+            
+            colors[ind] = color.r;
+            colors[ind+1] = color.g;
+            colors[ind+2] = color.b;
+        }
+        
+        return colors
+    
+    
+    }
+    
+    colorBufferedPlane = ( ) =>{
+        const plane = this.refs.plane
+        console.log(plane)
+        
+        const{frames, currentFrame} = this.props
+        
+        var pointCount = plane.index.count
+        
+        var colors = this.getColorArray( frames[currentFrame].z, plane.index.array );
+        
+        console.log("colors length: " + colors.length)
+        
+        plane.addAttribute('color', new THREE.BufferAttribute( colors, 3 ))
+    }        
+    
+    
+    assignColors = ( props ) => {
+        const { colorRange, frames, currentFrame } = props
+        
+        /* Reference the plane */
+        const plane = this.refs.plane
+        console.log(plane)
+        
+        
+        var frameKey = this.buildFrameKey(currentFrame, colorRange  )
+        
+        const frame = frames[currentFrame].z;
+
+        
+        if ( frameKey in this.cachedFaces ) {
+            var colors = this.cachedFaces[frameKey]
+            for ( var i = 0; i < plane.faces.length; i += 2 ) {
+            
+                if ( frame[i/2]) {
+                    
+                    var face = plane.faces[ i ];
+                    var hex = colors[i/2] ;
                     face.color.setHex(hex);
                     plane.faces[i+1].color.setHex(hex);
                 }
-
+        
+            }
+            
+            
+        } else {
+            
+            
+            //create an array to store the calculated colors for caching            
+            var colors = new Array(frame.length)
+            
+            for ( var i = 0; i < plane.faces.length; i += 2 ) {
+        
+                var value = frame[i / 2]
+                var face = plane.faces[ i ];
                 
-            }                
-            plane.colorsNeedUpdate = true;
+                /* Get the color */
+                var hex = (value !== null) ? this.getColor(value) : landColor.getHex()
+                
+                face.color.setHex(hex);
+                plane.faces[i+1].color.setHex(hex);
+                colors[i/2] = hex
+                
+            }
+            this.cachedFaces[frameKey] = colors
         }
+        plane.colorsNeedUpdate = true;
+    
     }
-    
-    
-    onDocumentMouseMove = (event) => {
-        
-        const {
-          width,
-        } = this.props;
-    
-        const windowHalfX = width / 2;
-    
-        this.mouseX = event.clientX - windowHalfX;
-        this.targetRotationY = this.targetRotationYOnMouseDown +
-          (this.mouseX - this.mouseXOnMouseDown) * 0.02; 
-        
-    }
-    
-    onDocumentMouseUp = () => {
-        document.removeEventListener('mousemove', this.onDocumentMouseMove, false);
-        document.removeEventListener('mouseup', this.onDocumentMouseUp, false);
-        document.removeEventListener('mouseout', this.onDocumentMouseOut, false);
-    };
-  
-    onDocumentMouseOut = () => {
-        document.removeEventListener('mousemove', this.onDocumentMouseMove, false);
-        document.removeEventListener('mouseup', this.onDocumentMouseUp, false);
-        document.removeEventListener('mouseout', this.onDocumentMouseOut, false);
-    }; 
-    
-    onDocumentTouchStart = (event) => {
-        if (event.touches.length === 1) {
-            event.preventDefault();
-      
-            const {
-                width,
-                height
-            } = this.props;
-      
-            const windowHalfX = width / 2;
-      
-            this.mouseXOnMouseDown = event.touches[0].pageX - windowHalfX;
-            this.targetRotationYOnMouseDown = this.targetRotationY;
-            
-            
-        }
-    };
-
-    onDocumentTouchMove = (event) => {
-        if (event.touches.length === 1) {
-            event.preventDefault();
-      
-            const {
-                width,
-            } = this.props;
-      
-            const windowHalfX = width / 2;
-      
-            this.mouseX = event.touches[0].pageX - windowHalfX;
-            this.targetRotationY = this.targetRotationYOnMouseDown +
-              (this.mouseX - this.mouseXOnMouseDown) * 0.05;
-        }
-    };
     
     onAnimate = () => {
         this.onAnimateInternal()
+        const {controls} = this.state
+        if (controls) controls.update()
         
 
     }
@@ -225,6 +226,7 @@ class MyThree extends Component {
     
     onAnimateInternal() {
         const groupRotationY = this.state.groupRotation.y;
+        
     
         if (Math.abs(groupRotationY - this.targetRotationY) > 0.0001) {
           this.setState({
@@ -232,9 +234,6 @@ class MyThree extends Component {
               (this.targetRotationY - groupRotationY) * 0.05, 0),
           });
         }
-        
-
-            
     }
     
     render() {
@@ -253,37 +252,44 @@ class MyThree extends Component {
                    width={width}
                    height={height}
                    
+                   forceManualRender={false}
+                   /* onManualRenderTriggerCreated={(trigger)=> this.setState({doRender:trigger})} */
+                   
                    onAnimate={this.onAnimate}
                >
                    <scene>
-                       <perspectiveCamera
-                         name="camera"
-                         fov={75}
-                         aspect={width / height}
-                         near={0.1}
-                         far={1000}
-                         position={this.cameraPosition}
-                         lookAt={this.cubePosition}
-                         //rotation={groupRotation}
+                        <perspectiveCamera
+                            ref="camera"
+                            name="camera"
+                            fov={75}
+                            aspect={width / height}
+                            near={0.1}
+                            far={1000}
+                            position={this.cameraPosition}
+                            lookAt={this.cubePosition}
+                            //rotation={groupRotation}
+                        />
+                        <mesh
+                            rotation={groupRotation}
+                            position={this.cubePosition}
+                        >
+                            <planeGeometry
+                                width={frames[0].width}
+                                height={frames[0].height}
+                                widthSegments={frames[0].width}
+                                heightSegments={frames[0].height}
+                                ref={"plane"}
+
+                            />
+ 
+                            <meshPhongMaterial
+                                wireframe={wireframe}
+                                vertexColors={THREE.FaceColors}
+                            />
+                        </mesh>
+                        <pointLight
+                            position={this.lightPosition}
                        />
-                       <mesh
-                           rotation={groupRotation}
-                           position={this.cubePosition}
-                       >
-                           <planeGeometry
-                               width={z[0].length}
-                               height={z.length}
-                               widthSegments={z[0].length}
-                               heightSegments={z.length}
-                               ref={"plane"}                        
-                           />
-                           
-       
-                           <meshBasicMaterial
-                               wireframe={wireframe}
-                               vertexColors={THREE.FaceColors}
-                           />
-                       </mesh>
                    </scene>
                </React3>
            </div>
@@ -298,7 +304,8 @@ MyThree.propTypes = {
     currentFrame:PropTypes.oneOfType( [ PropTypes.string.isRequired, PropTypes.number.isRequired ] ),
     height:PropTypes.number.isRequired,
     width:PropTypes.number.isRequired,
-    colorRange:PropTypes.array.isRequired
+    colorRange:PropTypes.array.isRequired,
+    isPlaying:PropTypes.bool.isRequired
 
 }
 

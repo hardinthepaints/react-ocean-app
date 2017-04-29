@@ -12,7 +12,6 @@ export const PLAYPAUSE_PRESS = "PLAYPAUSE_PRESS";
 export const SCRUBBER = "SCRUBBER";
 export const RANGE = "RANGE"
 export const SPEED_SLIDER = "SPEED_SLIDER"
-export const MODE_TOGGLE = "MODE_TOGGLE"
 export const COLOR_RANGE = "COLOR_RANGE"
 export const ARROW = "ARROW"
 
@@ -119,12 +118,6 @@ export function speedSlider( speed ){
     return {
         type : SPEED_SLIDER,
         speed : speed
-    }
-}
-
-export function modeToggle(){
-    return {
-        type : MODE_TOGGLE,
     }
 }
 

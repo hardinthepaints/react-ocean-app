@@ -1,16 +1,8 @@
 import React, { Component, PropTypes  } from 'react';
 
-//import './MySlider.css';
-
 import ReactBootstrapSlider from 'react-bootstrap-slider';
 
-
-//require('rc-tooltip/assets/bootstrap.css');
-
-//import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
-
-
 
 class MySlider extends Component {
     
@@ -31,28 +23,15 @@ class MySlider extends Component {
   
         return (
             
-            // <Slider className={"rc-slider"}
-            //
-            //onChange={this.props.onChange}
-            ///* onBeforeChange={this.props.onChange} */
-            //onAfterChange={this.props.onChange}
-            //value={this.props.value}
-            //min={this.props.min}
-            //max={this.props.max}
-            //
-            ///> 
-            
             <ReactBootstrapSlider
-  
-            change={(result) => this.props.onChange(result.target.value)}
-            /* onBeforeChange={this.props.onChange} */
-            /* slideStop={this.props.onChange} */
-            value={this.props.value}
-            min={this.props.min}
-            max={this.props.max}
-            handle={"square"}
-            selection={"before"}
-  
+                change={(result) => this.props.onChange(result.target.value)}
+                /* onBeforeChange={this.props.onChange} */
+                /* slideStop={this.props.onChange} */
+                value={this.props.value}
+                min={this.props.min}
+                max={this.props.max}
+                handle={"square"}
+                selection={"before"}
             />
         );
       

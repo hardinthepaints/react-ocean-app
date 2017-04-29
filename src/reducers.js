@@ -102,15 +102,6 @@ function speed( state = 5, action){
     }
 }
 
-function mapIsOn(state, action ){
-    switch(action.type){
-        case MODE_TOGGLE:
-            return !state;
-        default:
-            return state;
-    }
-}
-
 function colorRange(state, action){
     switch (action.type){
         case COLOR_RANGE:
@@ -129,7 +120,7 @@ function allowedFrames( state=[1,2,3,4], action ){
     }
 }
 
-function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], mapIsOn:true, colorRange:[10,33]}, action ){    
+function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], colorRange:[10,33]}, action ){    
     
     return {
         currentFrame:currentFrame( state, action ),
@@ -137,7 +128,6 @@ function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], mapI
         speed:speed(state.speed, action),
         isPlaying:isPlaying(state.isPlaying, action),
         animationRequestID:animationRequestID(state.animationRequestID, action),
-        mapIsOn:mapIsOn(state.mapIsOn, action),
         colorRange:colorRange(state.colorRange, action)
     }
     
