@@ -1,6 +1,5 @@
 //components/heatmap/HeatmapUI.js
 import React, { Component, PropTypes } from 'react';
-import MyLoader from './MyLoader'
 import MyHeatmap from './myheatmap'
 import Isvg from 'react-inlinesvg'
 
@@ -27,12 +26,6 @@ class HeatmapUI extends Component {
           this.setState( {myheatmap:new MyHeatmap(id, frames, width, height)} );
       }
   }
-  
-  //shouldComponentUpdate(nextProps, nextState){
-  //    const{currentFrame, frames, colorRange} = this.props
-  //    //currentFrame !== nextProps.currentFrame || colorRange !== nextProps.colorRange || 
-  //    return (currentFrame !== nextProps.currentFrame || colorRange !== nextProps.colorRange || frames.length > 0 && !this.state.myheatmap) ;
-  //}
   
   componentDidMount(){
       //const {id, dispatch, height} = this.props
@@ -111,22 +104,17 @@ class HeatmapUI extends Component {
 
   render() {
       const {frames, id, currentFrame} = this.props
-      if (frames && frames.length>0) {
-        const{width, height} = this.getWidthHeight();
-        return (
-            <div id={id}
-                className={id}
-                style={{height:height,
-                width:width, position:"relative"}}>
-            </div>          
-          
-          ) ;
+      const{width, height} = this.getWidthHeight();
+      return (
+          <div id={id}
+              className={id}
+              style={{height:height,
+              width:width, position:"relative"}}>
+          </div>          
         
-      } else {
-        return (
-            <MyLoader loaded={frames.length!=0}>
-            </MyLoader>)
-      }
+        ) ;
+        
+
   }
 }
 

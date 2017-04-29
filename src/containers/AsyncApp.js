@@ -12,6 +12,7 @@ import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCur
 import HeatmapUI from '../components/plotly_heatmap/HeatmapUI'
 import Controls from '../components/controls/Controls'
 import MyThree from '../components/three/MyThree'
+import MyLoader from '../components/MyLoader'
 
 
 var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
@@ -226,7 +227,13 @@ class AsyncApp extends Component {
                         />
                     
                         <div className = "Right">
-                            {mapIsOn ? this.getMyThree() : this.getHeatmap()}
+                            { (frames && frames.length>0) ?
+                                /* Either show a plotly heatmap or three.js */
+                                (mapIsOn ? this.getMyThree() : this.getHeatmap())
+                                
+                                /* If data have not come in yet, then show loader*/
+                                : <MyLoader loaded={frames.length!=0}/>
+                            }
                         </div>
                         
                     </Horizontal>

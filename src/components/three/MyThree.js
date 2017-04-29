@@ -53,14 +53,14 @@ class MyThree extends Component {
         document.addEventListener('touchmove', this.onDocumentTouchMove, false);
         
         const {currentFrame, frames} = this.props
+        
         if ( frames.length > 0 ) {
             this.assignColors( frames[currentFrame] )
         }
     }
     
     componentWillReceiveProps( nextProps ){
-        console.log("component will receive props: " );
-        console.log( nextProps )
+        console.log( "component will receive props" )
         const {currentFrame, frames, colorRange} = nextProps
 
         
@@ -69,6 +69,11 @@ class MyThree extends Component {
         ) {
             this.assignColors( frames[currentFrame] )
         }
+    }
+    
+    componentDidUpdate(prevProps){
+        console.log( "didupdate" )
+
     }
     
     componentWillUnmount() {
@@ -233,62 +238,58 @@ class MyThree extends Component {
     }
     
     render() {
-    const {
-        width,
-        height,
-    } = this.props;
-    
-    const z = this.props.frames.length > 0 ? this.props.frames[0].z : [[1,2], [1,2]]
-    //const z = [[1,2], [1,2]]
-    
-    const {
-        groupRotation,
-        wireframe,
-    } = this.state;
-    
-    return (
-    <div ref = "container">
-        <KeyHandler keyEventName={KEYUP} keyValue={"w"} onKeyHandle={this.toggleWireframe}/>
-        <React3
-            mainCamera="camera" // this points to the perspectiveCamera below
-            width={width}
-            height={height}
+        const {width,height,frames} = this.props;
             
-            onAnimate={this.onAnimate}
-        >
-            <scene>
-                <perspectiveCamera
-                  name="camera"
-                  fov={75}
-                  aspect={width / height}
-                  near={0.1}
-                  far={1000}
-                  position={this.cameraPosition}
-                  lookAt={this.cubePosition}
-                  //rotation={groupRotation}
-                />
-                <mesh
-                    rotation={groupRotation}
-                    position={this.cubePosition}
-                >
-                    <planeGeometry
-                        width={z[0].length}
-                        height={z.length}
-                        widthSegments={z[0].length}
-                        heightSegments={z.length}
-                        ref={"plane"}                        
-                    />
-                    
+        const {groupRotation,wireframe} = this.state;
+        
+            
+        const z = frames[0].z;
+    
+        return (
+            <div ref = "container">
+               <KeyHandler keyEventName={KEYUP} keyValue={"w"} onKeyHandle={this.toggleWireframe}/>
+               <React3
+                   mainCamera="camera" // this points to the perspectiveCamera below
+                   width={width}
+                   height={height}
+                   
+                   onAnimate={this.onAnimate}
+               >
+                   <scene>
+                       <perspectiveCamera
+                         name="camera"
+                         fov={75}
+                         aspect={width / height}
+                         near={0.1}
+                         far={1000}
+                         position={this.cameraPosition}
+                         lookAt={this.cubePosition}
+                         //rotation={groupRotation}
+                       />
+                       <mesh
+                           rotation={groupRotation}
+                           position={this.cubePosition}
+                       >
+                           <planeGeometry
+                               width={z[0].length}
+                               height={z.length}
+                               widthSegments={z[0].length}
+                               heightSegments={z.length}
+                               ref={"plane"}                        
+                           />
+                           
+       
+                           <meshBasicMaterial
+                               wireframe={wireframe}
+                               vertexColors={THREE.FaceColors}
+                           />
+                       </mesh>
+                   </scene>
+               </React3>
+           </div>
+            
+        );
 
-                    <meshBasicMaterial
-                        wireframe={wireframe}
-                        vertexColors={THREE.FaceColors}
-                    />
-                </mesh>
-            </scene>
-        </React3>
-    </div>
-    );
     }
 }
 
