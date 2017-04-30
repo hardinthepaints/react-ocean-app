@@ -22,7 +22,7 @@ var OrbitControls = function ( object, domElement ) {
 
 	this.object = object;
         
-        //object.up.set( 0, 0, 1 );
+        object.up.set( 0, 0, 1 );
 
 
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
@@ -43,13 +43,13 @@ var OrbitControls = function ( object, domElement ) {
 
 	// How far you can orbit vertically, upper and lower limits.
 	// Range is 0 to Math.PI radians.
-	this.minPolarAngle = Math.PI * .1; // radians
-	this.maxPolarAngle = Math.PI * .9; // radians
+	this.minPolarAngle = 0; // radians
+	this.maxPolarAngle = (Math.PI/2) *.7; // radians
 
 	// How far you can orbit horizontally, upper and lower limits.
 	// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
-	this.minAzimuthAngle = -( Math.PI / 2 )* .9; // radians
-	this.maxAzimuthAngle = (Math.PI / 2)* .9; // radians
+	this.minAzimuthAngle = -Infinity ; // radians
+	this.maxAzimuthAngle = Infinity ; // radians
 
 	// Set to true to enable damping (inertia)
 	// If damping is enabled, you must call controls.update() in your animation loop
@@ -303,7 +303,8 @@ var OrbitControls = function ( object, domElement ) {
 
 			v.setFromMatrixColumn( objectMatrix, 0 ); // get X column of objectMatrix
 			v.multiplyScalar( - distance );
-
+                        
+                        v.z=0
 			panOffset.add( v );
 
 		};
@@ -318,7 +319,10 @@ var OrbitControls = function ( object, domElement ) {
 
 			v.setFromMatrixColumn( objectMatrix, 1 ); // get Y column of objectMatrix
 			v.multiplyScalar( distance );
+                        
+                        v.z=0
 
+                        
 			panOffset.add( v );
 
 		};
