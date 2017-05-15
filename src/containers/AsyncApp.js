@@ -6,7 +6,16 @@ import ContainerDimensions from 'react-container-dimensions';
 var FPSStats = require('react-stats').FPSStats;
 var __DEV__ = true;
 
-import { fetchDataIfNeeded, playPausePress, scrubber, range, speedSlider, setCurrentFrame, colorRange, arrow } from '../actions'
+import {
+    fetchDataIfNeeded,
+    playPausePress,
+    scrubber,
+    range,
+    speedSlider,
+    setCurrentFrame,
+    colorRange,
+    arrow,
+    variableSelect } from '../actions'
 
 /* Import my custom components */
 import Controls from '../components/controls/Controls'
@@ -75,7 +84,7 @@ class AsyncApp extends Component {
         
         /* "step" to the next frame */
         function step( timeStamp ){
-            
+            console.time("animate")
             
             if (!start) start = timeStamp;
             if (! nextFrame) nextFrame = currentFrame;
@@ -94,7 +103,8 @@ class AsyncApp extends Component {
             /* Change the state to the next frame */
             dispatch( setCurrentFrame( framesInRange[ nextFrame ], requestAnimationFrame(step) ));
             
-            
+            console.timeEnd( "animate")
+
         }
                 
         
@@ -138,12 +148,13 @@ class AsyncApp extends Component {
     getMyThree = () =>{
         
         const {frames} = this.props;
-        const {currentFrame, colorRange, isPlaying} = this.props.ui
+        const {currentFrame, colorRange, isPlaying, currentVariable} = this.props.ui
         
         return (
             <ContainerDimensions >
                 { ({ width, height }) =>
                     <MyThree
+                        currentVariable={currentVariable}
                         width={width}
                         height={height}
                         frames={frames}
@@ -154,6 +165,11 @@ class AsyncApp extends Component {
                 }
             </ContainerDimensions>
         );
+    }
+    
+    handleVariable=(variable)=>{
+        const {dispatch} = this.props;
+        dispatch(variableSelect(variable))
     }
     
     handleArrow=(right)=>{
@@ -171,7 +187,7 @@ class AsyncApp extends Component {
     
     render() {
         
-        const {mapIsOn, currentFrame} = this.props.ui
+        const {currentFrame, mode} = this.props.ui
         const {frames} = this.props;
 
         return (
@@ -190,13 +206,13 @@ class AsyncApp extends Component {
                             getMaxFrame={this.getMaxFrame}
                             handleColorRange={this.handleColorRange}
                             handleArrow={this.handleArrow}
+                            handleVariable={this.handleVariable}
                         />
                     
                         <div className = "Right">
                             { (frames && frames.length>0) ?
                                 /* Either show a plotly heatmap or three.js */  /* If data have not come in yet, then show loader*/
                                 this.getMyThree() : <MyLoader loaded={frames.length!=0}/>
-
                             }
                         </div>
                         
@@ -210,16 +226,17 @@ class AsyncApp extends Component {
     }
 }
 
+
+/* Impose constraints on the props */
 AsyncApp.propTypes = {
     frames:PropTypes.array.isRequired,
     allowedFrames:PropTypes.array.isRequired,
-
-    
     ui:PropTypes.shape( {
         isPlaying:PropTypes.bool.isRequired,
         speed:PropTypes.number.isRequired,
         range:PropTypes.array.isRequired,
         currentFrame:PropTypes.oneOfType( [ PropTypes.string.isRequired, PropTypes.number.isRequired ] ),
+        currentVariable:PropTypes.string.isRequired
     }),                       
 
     dispatch:PropTypes.func.isRequired,
@@ -228,7 +245,7 @@ AsyncApp.propTypes = {
 function mapStateToProps( state ) {
         
     const { ui,frames, allowedFrames } = state;
-    const {currentFrame, range, speed, isPlaying, colorRange} = ui;
+    const {currentFrame, range, speed, isPlaying, colorRange, mode} = ui;
         
     return {ui,frames, allowedFrames}
 }

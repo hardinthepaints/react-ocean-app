@@ -14,8 +14,8 @@ class MyToggle extends Component {
   
   render() {
     
-
     return (
+      
       <Toggle
         onClick={this.props.onClick}
         on={ this.props.active ? this.props.active : PAUSE }
@@ -25,8 +25,12 @@ class MyToggle extends Component {
 
 
       />
+
         
     );
+  
+        {}
+  
   }
 
 }

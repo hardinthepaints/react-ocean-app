@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 
+import colors from '../../containers/Colors.json'
+const {maxSaltColor} = colors;
 
 function createColorscale() {
     
     const colorScaler = function(value){
         
-        const purple = new THREE.Color("rgb(127, 0, 255)")
+        const purple = new THREE.Color(maxSaltColor)
         purple.multiplyScalar(value)
         
         //console.log(purple)

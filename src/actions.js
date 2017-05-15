@@ -14,6 +14,7 @@ export const RANGE = "RANGE"
 export const SPEED_SLIDER = "SPEED_SLIDER"
 export const COLOR_RANGE = "COLOR_RANGE"
 export const ARROW = "ARROW"
+export const VARIABLE_SELECT ="VARIABLE_SELECT"
 
 
 
@@ -26,7 +27,7 @@ function checkStatus(response){
     return response;  
 }
 
-function fetchData(url = "http://localhost:5000/oceanapp/v1.0/jsonsql?precomp=true", username="xman", password="el33tnoob" ){
+function fetchData(url = "http://localhost:5000/oceanapp/v1.0/json", username="xman", password="el33tnoob" ){
     
     const init ={
             method: 'GET',
@@ -132,5 +133,15 @@ export function arrow(frame){
     return {
         type : ARROW,
         frame:frame
+    }
+}
+
+/**modeSelect
+ *  change the dataset
+ */
+export function variableSelect(variable){
+    return {
+        type:VARIABLE_SELECT,
+        variable
     }
 }

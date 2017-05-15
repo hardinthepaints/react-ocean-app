@@ -3,6 +3,8 @@ import React, { Component, PropTypes  } from 'react';
 import ReactBootstrapSlider from 'react-bootstrap-slider';
 
 import 'bootstrap-slider/dist/css/bootstrap-slider.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 import './MySlider.css'
@@ -26,6 +28,10 @@ class MySlider extends Component {
         return (
             
             <ReactBootstrapSlider
+            
+                data-slider-rangeHighlights={[
+                    { "start": 0, "end": 30 },
+                ]}
                 change={(result) => this.props.onChange(result.target.value)}
                 /* onBeforeChange={this.props.onChange} */
                 /* slideStop={this.props.onChange} */

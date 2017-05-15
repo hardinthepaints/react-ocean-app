@@ -5,22 +5,22 @@ import * as THREE from 'three';
 import KeyHandler, {KEYUP } from 'react-key-handler';
 import createColorscale from './MyColorscale'
 import OrbitControls from './OrbitControls';
+import MyMarker from './MyMarker'
+import getPlaneFaces from './threeHelperFunctions'
 
-const landColor = new THREE.Color("rgb(255, 157, 0)")
 
+import colors from '../../containers/Colors.json'
+const landColor = new THREE.Color(colors.landColor);
+const {markerColor} = colors;
 
 class MyThree extends Component {
-  static propTypes = {
-    width: React.PropTypes.number.isRequired,
-    height: React.PropTypes.number.isRequired,
-  };
+
 
   constructor(props, context) {
         super(props, context);
     
         this.cameraPosition = new THREE.Vector3(0, 0, 300);
         this.lightPosition = new THREE.Vector3(100, 100, 300)
-
     
         // construct the position vector here, because if we use 'new' within render,
         // React will think that things have changed when they have not.
@@ -33,70 +33,82 @@ class MyThree extends Component {
             ...this.state,
             wireframe:false,
             groupRotation: new THREE.Euler(0, 0, 0),
+            markerPosition:new THREE.Vector3(0, 0, 0)
         };
         
         
         //this.cameraPosition = new THREE.Vector3(0, 150, 500);
-        this.cubePosition = new THREE.Vector3(0, 0, 0);
+        this.planePosition = new THREE.Vector3(0, 0, 0);
+        this.gridPosition = new THREE.Vector3(-0.5, 0, 1);
     
         this.targetRotationYOnMouseDown = 0;
     
         this.mouseX = 0;
         this.mouseXOnMouseDown = 0;
         this.targetRotationY = 0;
-        
+                
     }
     
-    
-
-    
+        
     componentDidMount(){
+      
         const container = this.refs.container;
         
         const {currentFrame, frames} = this.props
-        
-        if ( frames.length > 0 ) {
-            this.assignColors( this.props )
-        }
-        
+
         const controls = new OrbitControls(this.refs.camera, ReactDOM.findDOMNode(this.refs.container))
 
         this.setState({
-            controls:controls
+            controls:controls,
+            
         });
-  
+        
+        this.raycaster = new THREE.Raycaster();
+        this.mouse = new THREE.Vector2();
+        container.addEventListener( 'mousemove', this.onMouseMove, false );
+
+
         controls.rotateSpeed = 1.0;
         controls.zoomSpeed = 1.2;
         
+        /* Initial draw */
+        const plane = this.refs.plane
+        this.assignColors(plane.faces, this.props)
+        plane.colorsNeedUpdate = true
+    }
+    onMouseMove = ( event )=> {
+	// calculate mouse position in normalized device coordinates
+	// (-1 to +1) for both components
+
+	this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
     }
     
+    /** componentWillReceiveProps
+     *    occurs when a component receives new props
+     */
     componentWillReceiveProps( nextProps ){
-        const {currentFrame, frames, colorRange} = nextProps
-
+        const {currentFrame, frames, colorRange, currentVariable } = nextProps
+        
+          /* Reference the plane */
+        const plane = this.refs.plane
         
         if ( frames.length > this.props.frames.length ||
-            (frames.length > 0 && (currentFrame !== this.props.currentFrame || colorRange !== this.props.coloRange)) 
+            (frames.length > 0 &&
+                (currentFrame !== this.props.currentFrame ||
+                colorRange !== this.props.colorRange ||
+                currentVariable !== this.props.currentVariable)
+            ) 
         ) {
-            this.assignColors( nextProps )
-            //this.colorBufferedPlane();
+            /* Assign new colors to the plane */
+            this.assignColors( plane.faces, nextProps )
+            plane.colorsNeedUpdate = true
+            
         }
-        
-        
     }
     
-    componentWillUnmount() {
-        const container = this.refs.container;    
-    }
-    
-    
-    formatColorScale = (colorscale) => {
-        for ( var i = 0; i < colorscale.length; i ++) {
-            colorscale[i][1] = new THREE.Color( colorscale[i][1] ).getHex()
-        }
-        
-        return colorscale;
-    }
-    
+    /* given a value, Return a color in hex form */
     getColor =( value )=>{
         
         const {colorRange} = this.props;
@@ -108,156 +120,139 @@ class MyThree extends Component {
         return this.colorscale(value )
     }
     
-    buildFrameKey = ( currentFrame, colorRange ) => {
-        return currentFrame + "_" + colorRange[0] + "_" + colorRange[1]
+    /* Build a key for use in caching */
+    buildFrameKey = ( currentFrame, colorRange, currentVariable ) => {
+        return currentFrame + "_" + colorRange[0] + "_" + colorRange[1] + "_" + currentVariable
     }
     
-    getColorArray = ( z, index ) => {
-        var triangleCount = z.length*2
-        var colors = new Float32Array(197220)
+    /* Cache an array of colors */
+    cacheFace =(framekey,colors)=> {
+        this.cachedFaces[framekey] = colors;
         
-        var color = new THREE.Color();
-                
+    }
+    
+    
+    /**
+     *Raycast the mouse position to find where it intersects with the plane.
+     *Use that location to determine where the marker should be
+    *
+    */
+    highlightMouseOver = (raycaster, mouse, camera, mesh) => {
         
-        for (var i = 0; i<triangleCount; i += 1){
-            var value = z[i/2]
-            var hex = (value !== null) ? this.getColor(value) : landColor.getHex()
+      	// update the picking ray with the camera and mouse position
+	raycaster.setFromCamera( mouse, camera );
 
-            //color.setRGB( i / colors.length, i / colors.length, 1 );
-            color.setHex(hex)
+	// calculate objects intersecting the picking ray
+	var intersects = raycaster.intersectObject( mesh );
+        
+        var point;
+        if (intersects.length > 0) {
+            point = intersects[0].point.round();
             
-            var ind
-            for (var vertexNumber = 0; vertexNumber < 2; vertexNumber++){
-                ind = index[i*3 + vertexNumber]
-            }
-            
-            colors[ind] = color.r;
-            colors[ind+1] = color.g;
-            colors[ind+2] = color.b;
+            /* Center the marker on the squares so it lines up perfectly with one quadrant of the data */
+            point.z = .5
+            point.x += .5
+
+            this.setState({markerPosition:point});
         }
-        
-        return colors
-    
-    
     }
     
-    colorBufferedPlane = ( ) =>{
-        const plane = this.refs.plane
-        console.log(plane)
+    /* Assign colors based on the values in the props (z and colorRange) to the faces in the plane.
+    *   cache the result of the calculation so it only has to be done once
+    *   Also, the colors can be precalculated and cached if plane is null
+    *   this method will only work if the plane is a geometry (not buffer)
+    */
+    assignColors = ( planeGeometryFaces, props ) => {
+        const { colorRange, frames, currentFrame, currentVariable } = props
+              
+        var frameKey = this.buildFrameKey(currentFrame, colorRange, currentVariable  )
         
-        const{frames, currentFrame} = this.props
-        
-        var pointCount = plane.index.count
-        
-        var colors = this.getColorArray( frames[currentFrame].z, plane.index.array );
-        
-        console.log("colors length: " + colors.length)
-        
-        plane.addAttribute('color', new THREE.BufferAttribute( colors, 3 ))
-    }        
-    
-    
-    assignColors = ( props ) => {
-        const { colorRange, frames, currentFrame } = props
-        
-        /* Reference the plane */
-        const plane = this.refs.plane
-        console.log(plane)
-        
-        
-        var frameKey = this.buildFrameKey(currentFrame, colorRange  )
-        
-        const frame = frames[currentFrame].z;
+        const z = frames[currentFrame][currentVariable];
 
-        
-        if ( frameKey in this.cachedFaces ) {
-            var colors = this.cachedFaces[frameKey]
-            for ( var i = 0; i < plane.faces.length; i += 2 ) {
-            
-                if ( frame[i/2]) {
+        /* If in the cache, use the cached data */
+        if ( frameKey in this.cachedFaces && planeGeometryFaces ) {
                     
-                    var face = plane.faces[ i ];
-                    var hex = colors[i/2] ;
-                    face.color.setHex(hex);
-                    plane.faces[i+1].color.setHex(hex);
+            var colors = this.cachedFaces[frameKey]
+            for ( var i = 0; i < planeGeometryFaces.length; i += 2 ) {
+            
+                if ( z[i/2]) {
+                    var hex = colors[i/2] ;                    
+                    for (var j = 0; j<2; j++){
+                        planeGeometryFaces[i+j].color.setHex(hex);
+                    }
                 }
         
             }
             
+        /* If not in cache, calculate, draw, and cache */
+        } else if (!(frameKey in this.cachedFaces)) {
             
-        } else {
+            var colors = new Array(z.length)
             
-            
-            //create an array to store the calculated colors for caching            
-            var colors = new Array(frame.length)
-            
-            for ( var i = 0; i < plane.faces.length; i += 2 ) {
+            for ( var i = 0; i < z.length*2; i += 2 ) {
         
-                var value = frame[i / 2]
-                var face = plane.faces[ i ];
+                var value = z[i / 2]
                 
                 /* Get the color */
                 var hex = (value !== null) ? this.getColor(value) : landColor.getHex()
-                
-                face.color.setHex(hex);
-                plane.faces[i+1].color.setHex(hex);
-                colors[i/2] = hex
-                
+                if (planeGeometryFaces){
+                    for (var j = 0; j<2; j++){
+                        planeGeometryFaces[i+j].color.setHex(hex);
+  
+                    }
+                }
+                colors[i/2] = hex                
             }
-            this.cachedFaces[frameKey] = colors
+            this.cacheFace(frameKey, colors);
         }
-        plane.colorsNeedUpdate = true;
-    
-    }
-    
-    onAnimate = () => {
-        this.onAnimateInternal()
-        const {controls} = this.state
-        if (controls) controls.update()
         
 
     }
     
+    /* Called when the three.js components decides it is time to animate */
+    onAnimate=()=> {
+        const camera = this.refs.camera
+        const mesh = this.refs.mesh
+        
+        const plane = this.refs.plane
+
+        /* Animate the marker */
+        if(this.raycaster) this.highlightMouseOver(this.raycaster, this.mouse, camera, mesh)
+        const {controls} = this.state
+        if (controls) controls.update()
+
+    }
+    
+    /**toggleWireframe
+     *    change the state of this component to show wireframe in the three.js component
+     */
     toggleWireframe = () => {
         this.setState({
             wireframe:!this.state.wireframe  
         })
     }
     
-    onAnimateInternal() {
-        const groupRotationY = this.state.groupRotation.y;
-        
-    
-        if (Math.abs(groupRotationY - this.targetRotationY) > 0.0001) {
-          this.setState({
-            groupRotation: new THREE.Euler(0, groupRotationY +
-              (this.targetRotationY - groupRotationY) * 0.05, 0),
-          });
-        }
-    }
-    
     render() {
-        const {width,height,frames} = this.props;
+            
+        const {width,height,frames,currentVariable, isPlaying} = this.props;
             
         const {groupRotation,wireframe} = this.state;
-        
             
-        const z = frames[0].z;
+        const z = frames[0][currentVariable];
     
         return (
             <div ref = "container">
-               <KeyHandler keyEventName={KEYUP} keyValue={"w"} onKeyHandle={this.toggleWireframe}/>
-               <React3
-                   mainCamera="camera" // this points to the perspectiveCamera below
-                   width={width}
-                   height={height}
-                   
-                   forceManualRender={false}
-                   /* onManualRenderTriggerCreated={(trigger)=> this.setState({doRender:trigger})} */
-                   
-                   onAnimate={this.onAnimate}
-               >
-                   <scene>
+                <KeyHandler keyEventName={KEYUP} keyValue={"w"} onKeyHandle={this.toggleWireframe}/>
+                <React3
+                    mainCamera="camera" // this points to the perspectiveCamera below
+                    width={width}
+                    height={height}
+                    forceManualRender={false}
+                    onManualRenderTriggerCreated={this.setTrigger}
+                    onAnimate={this.onAnimate}
+                    
+                >
+                   <scene ref="scene">
                         <perspectiveCamera
                             ref="camera"
                             name="camera"
@@ -266,12 +261,14 @@ class MyThree extends Component {
                             near={0.1}
                             far={1000}
                             position={this.cameraPosition}
-                            lookAt={this.cubePosition}
-                            //rotation={groupRotation}
+                            lookAt={this.planePosition}
                         />
+                        
+                        <MyMarker position={this.state.markerPosition} wireframe={wireframe} color={markerColor}/>                    
                         <mesh
-                            rotation={groupRotation}
-                            position={this.cubePosition}
+                            ref={"mesh"}
+                            rotation={this.groupRotation}
+                            position={this.planePosition}
                         >
                             <planeGeometry
                                 width={frames[0].width}
@@ -279,9 +276,7 @@ class MyThree extends Component {
                                 widthSegments={frames[0].width}
                                 heightSegments={frames[0].height}
                                 ref={"plane"}
-
                             />
- 
                             <meshPhongMaterial
                                 wireframe={wireframe}
                                 vertexColors={THREE.FaceColors}
@@ -295,6 +290,8 @@ class MyThree extends Component {
            </div>
             
         );
+      
+
 
     }
 }
@@ -305,7 +302,8 @@ MyThree.propTypes = {
     height:PropTypes.number.isRequired,
     width:PropTypes.number.isRequired,
     colorRange:PropTypes.array.isRequired,
-    isPlaying:PropTypes.bool.isRequired
+    isPlaying:PropTypes.bool.isRequired,
+    currentVariable:PropTypes.string.isRequired
 
 }
 

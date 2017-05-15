@@ -6,15 +6,15 @@ import MyRange from './MyRange'
 import MyToggle from './MyToggle'
 import './Controls.css'
 import KeyHandler, {KEYDOWN, KEYUP } from 'react-key-handler';
+import MyButtonGroup from './MyButtonGroup'
+import {Button} from 'react-bootstrap'
 
 /* Logic for how the controls look */
 function Controls(props){
     
-    const{isPlaying, currentFrame, range, mapIsOn, colorRange} = props.ui;
+    const{isPlaying, currentFrame, range, mapIsOn, colorRange, currentVariable} = props.ui;
     const {dateString} = props;
     
-    const MODE_MAP_ON = "MAP";
-    const MODE_MAP_OFF = "PLOT";
     
     return (
         <div className="Left">
@@ -26,14 +26,18 @@ function Controls(props){
                 <KeyHandler keyEventName={KEYUP} keyValue={"Spacebar"} onKeyHandle={props.handleButtonClick}/>
 
                 <MyToggle onClick={props.handleButtonClick} value={isPlaying}/>
+
+            </div>
+            
+            {/*data readout*/}
+            <div className="Wrap">
+                <Horizontal alignItems={'center'} alignContent={'space-around'} >
+                    <span className="SmallGrayFont" >{ dateString }</span>
+                </Horizontal>
             </div>
             
             {/* Scrubber */}
             <div className="Wrap">
-                <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                    <span  className="SmallGrayFont">{"frame:"}</span>
-                    <span className="LargeGrayFont"> {currentFrame} </span>
-                </Horizontal>
             
                 <KeyHandler keyEventName={KEYDOWN} keyValue={"ArrowRight"} onKeyHandle={()=>{props.handleArrow(true)}}/>
                 <KeyHandler keyEventName={KEYDOWN} keyValue={"ArrowLeft"} onKeyHandle={()=>{props.handleArrow()}}/>
@@ -42,7 +46,7 @@ function Controls(props){
             
             <div className="Wrap">
 
-                <MySlider onChange={props.handleChange} value={currentFrame} min={0} rangeHighlights={[{ "start": 2, "end": 5 }]} max={props.getMaxFrame()} />
+                <MySlider onChange={props.handleChange} value={currentFrame} min={0} max={props.getMaxFrame()} />
             </div>
 
             
@@ -53,19 +57,15 @@ function Controls(props){
             
             
             {/* Color Slider */}
-              <div className="Wrap">
+            <div className="Wrap">
                 <Horizontal alignItems={'center'} alignContent={'space-around'} >
                     <span className="SmallGrayFont" >{ "Color Range" }</span>
                 </Horizontal>
-              <MySlider onChange={props.handleColorRange} value={colorRange} min={0} max={33}  />
+                <MySlider onChange={props.handleColorRange} value={colorRange} min={0} max={33}  />
             </div>
                         
-            {/*data readout*/}
-            <div className="Wrap">
-                <Horizontal alignItems={'center'} alignContent={'space-around'} >
-                    <span className="SmallGrayFont" >{ dateString }</span>
-                </Horizontal>
-            </div>
+            <MyButtonGroup onClick={props.handleVariable} currentVariabel={currentVariable}/>
+
         </div>        
         
     );

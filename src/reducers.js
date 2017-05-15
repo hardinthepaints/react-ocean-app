@@ -11,7 +11,7 @@ import {
     MODE_TOGGLE,
     COLOR_RANGE,
     ARROW,
-    //REQUEST_DATA, 
+    VARIABLE_SELECT
 } from './actions'
 
 function getCorrectFrame( frame, range ){
@@ -60,7 +60,7 @@ function isPlaying( isPlaying, action ){
         case RECEIVE_DATA:
             return false;
         case COLOR_RANGE:
-            return false;
+            return isPlaying;
         case ARROW:
             return false;
         default:
@@ -120,7 +120,19 @@ function allowedFrames( state=[1,2,3,4], action ){
     }
 }
 
-function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], colorRange:[10,33]}, action ){    
+/**currentVariable
+ *which variable is currently being displayed
+ */
+function currentVariable(variable, action) {
+    switch(action.type){
+        case VARIABLE_SELECT:
+            return action.variable;
+        default:
+            return variable;
+    }
+}
+
+function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], colorRange:[10,33], currentVariable:"salt"}, action ){    
     
     return {
         currentFrame:currentFrame( state, action ),
@@ -128,7 +140,8 @@ function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], colo
         speed:speed(state.speed, action),
         isPlaying:isPlaying(state.isPlaying, action),
         animationRequestID:animationRequestID(state.animationRequestID, action),
-        colorRange:colorRange(state.colorRange, action)
+        colorRange:colorRange(state.colorRange, action),
+        currentVariable:currentVariable(state.currentVariable, action)
     }
     
 }

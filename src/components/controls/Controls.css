@@ -6,6 +6,13 @@
   color:gray;
 }
 
+.SmallGrayFont :hover{
+  font-family: "helvetica";
+  font-size:30px;
+  color:purple;
+  border:hidden;
+}
+
 .LargeGrayFont{
   font-family: "helvetica";
   font-size:50px;
@@ -68,6 +75,10 @@
   margin-left: 0px;
   margin-right: 0px;
 
+}
+
+.ButtonGroup{
+  
 }
 
 
