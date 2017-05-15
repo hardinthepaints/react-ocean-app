@@ -1,30 +1,29 @@
 <h1 align="center">React Ocean App (under development)<h1/>
 
 <p align="center">
-    <img src ="public/demo.gif" />
+    <img src ="public/ScreenShot.png" />
 </p>
 
 ## Synopsis
 
-A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to be served by the [Ocean App Server](https://github.com/hardinthepaints/ocean-app-server).
+A front-end Oceanography webapp built with React, Redux, and the React Three Renderer. Meant to be served by the [Ocean App Server](https://github.com/hardinthepaints/ocean-app-server).
 
 ## Installation
 
-1. Follow directions to install the [Ocean App Server](https://github.com/hardinthepaints/ocean-app-server)
-2. Download this repository to [app/static/webapp](https://github.com/hardinthepaints/ocean-app-server/tree/master/app/static/Webapp/) in the ocean-app-server file structure.
-
+1. Follow directions to install the [Ocean App Server](https://github.com/hardinthepaints/ocean-app-server). The instructions steps will download this repository as a submodule. 
 
 ## Usage
 
 1. Choices:  
-* Run the Ocean App Server and go to [http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html](http://localhost:5000/app/static/webapp/react-ocean-app/build/index.html)  
+* Run the Ocean App Server and go to [http://localhost:5000/oceanapp/v1.0/app/static/react-ocean-app/build/index.html](http://localhost:5000/oceanapp/v1.0/app/static/react-ocean-app/build/index.html)  
 * Run your own server to serve the files in /build
 
 ## Development
 * Instructions for [Create React App](https://github.com/facebookincubator/create-react-app).
 * `npm install`
-`npm start` and go to [http://localhost:3000/](http://localhost:3000/)
+* `npm start` and go to [http://localhost:3000/](http://localhost:3000/)
 * Edit the files in [/src](/src)
+* `npm run build` to build the files.
 
 ## Task List
 - [ ] Snapshot tests for React components
@@ -33,15 +32,16 @@ A front-end Oceanography webapp built with React, Redux, and Plotly.js. Meant to
 - [ ] Add streaming capability
 - [ ] Pre-load frames
 - [ ] Show frame data like hour or data
-- [ ] Display data on MapBox map
-- [ ] Frame scrubber should reflect range limit
+- [x] Frame scrubber should reflect range limit
 - [ ] Frame scrubber should show which frames have loaded
-- [ ] Display loader spinner on not-yet-fetched frames
+- [x] Display loader spinner on not-yet-fetched frames
 - [ ] Play toggle should be larger
 - [ ] Add docs to explain code
+- [ ] Terrain
+- [ ] Controls page
 
 ## Notes
-This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app). The three-dimensional visualizer part of this app was created using [React Three Renderer](https://github.com/toxicFork/react-three-renderer/)
 
 ## License
 
