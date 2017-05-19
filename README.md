@@ -6,7 +6,7 @@
 
 ## Synopsis
 
-A front-end Oceanography webapp built with React, Redux, and the React Three Renderer. Meant to be served by the [Ocean App Server](https://github.com/hardinthepaints/ocean-app-server).
+A front-end Oceanography webapp built with React, Redux, and [React Three Renderer](https://github.com/toxicFork/react-three-renderer/). Meant to be served by the [Ocean App Server](https://github.com/hardinthepaints/ocean-app-server).
 
 ## Installation
 

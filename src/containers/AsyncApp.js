@@ -84,7 +84,6 @@ class AsyncApp extends Component {
         
         /* "step" to the next frame */
         function step( timeStamp ){
-            console.time("animate")
             
             if (!start) start = timeStamp;
             if (! nextFrame) nextFrame = currentFrame;
@@ -103,8 +102,6 @@ class AsyncApp extends Component {
             /* Change the state to the next frame */
             dispatch( setCurrentFrame( framesInRange[ nextFrame ], requestAnimationFrame(step) ));
             
-            console.timeEnd( "animate")
-
         }
                 
         
