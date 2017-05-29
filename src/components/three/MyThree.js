@@ -18,12 +18,11 @@ class MyThree extends Component {
 
   constructor(props, context) {
         super(props, context);
-    
-        this.cameraPosition = new THREE.Vector3(0, 0, 300);
-        this.lightPosition = new THREE.Vector3(100, 100, 300)
-    
         // construct the position vector here, because if we use 'new' within render,
         // React will think that things have changed when they have not.
+        this.cameraPosition = new THREE.Vector3(0, 0, 300);
+        this.lightPosition = new THREE.Vector3(100, 100, 300)
+
     
         this.colorscale = createColorscale()
         
@@ -77,11 +76,11 @@ class MyThree extends Component {
         plane.colorsNeedUpdate = true
     }
     onMouseMove = ( event )=> {
-	// calculate mouse position in normalized device coordinates
-	// (-1 to +1) for both components
+    	// calculate mouse position in normalized device coordinates
+    	// (-1 to +1) for both components
 
-	this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    	this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    	this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
     }
     
@@ -140,10 +139,10 @@ class MyThree extends Component {
     highlightMouseOver = (raycaster, mouse, camera, mesh) => {
         
       	// update the picking ray with the camera and mouse position
-	raycaster.setFromCamera( mouse, camera );
+    	raycaster.setFromCamera( mouse, camera );
 
-	// calculate objects intersecting the picking ray
-	var intersects = raycaster.intersectObject( mesh );
+    	// calculate objects intersecting the picking ray
+    	var intersects = raycaster.intersectObject( mesh );
         
         var point;
         if (intersects.length > 0) {
@@ -155,6 +154,43 @@ class MyThree extends Component {
 
             this.setState({markerPosition:point});
         }
+    }
+
+    /**paintPlaneGeometry
+    *   z values
+    *   colors - if provided, then will not calculate them
+    *   planeGeometryFaces - the array of faces to be painted
+    */
+    paintPlaneGeometry = ( zValues, colors, planeGeometryFaces ) => {
+        var colorsProvided = false;
+        var findColor;
+        if (colors != null){
+            colorsProvided=true;
+            findColor = (currentFace) =>{
+                return colors[currentFace/2];
+            }
+        } else {
+            colors = new Array(zValues.length);
+            findColor = (currentFace) => {
+                var value = zValues[currentFace/2];
+                var hex = (value !== null) ? this.getColor(value) : landColor.getHex();
+
+                //store in cache
+                colors[currentFace/2] = hex;
+                return hex;
+            }
+        }
+
+        var hexColor;
+        for (var currentFace = 0; currentFace < zValues.length*2; currentFace+=2){
+                hexColor = findColor(currentFace);
+                for (var j = 0; j<2; j++){
+                    planeGeometryFaces[currentFace+j].color.setHex( hexColor );
+                }
+
+        }
+
+        return colors;
     }
     
     /* Assign colors based on the values in the props (z and colorRange) to the faces in the plane.
@@ -169,44 +205,15 @@ class MyThree extends Component {
         
         const z = frames[currentFrame][currentVariable];
 
-        /* If in the cache, use the cached data */
-        if ( frameKey in this.cachedFaces && planeGeometryFaces ) {
-                    
-            var colors = this.cachedFaces[frameKey]
-            for ( var i = 0; i < planeGeometryFaces.length; i += 2 ) {
-            
-                if ( z[i/2]) {
-                    var hex = colors[i/2] ;                    
-                    for (var j = 0; j<2; j++){
-                        planeGeometryFaces[i+j].color.setHex(hex);
-                    }
-                }
-        
-            }
-            
-        /* If not in cache, calculate, draw, and cache */
-        } else if (!(frameKey in this.cachedFaces)) {
-            
-            var colors = new Array(z.length)
-            
-            for ( var i = 0; i < z.length*2; i += 2 ) {
-        
-                var value = z[i / 2]
-                
-                /* Get the color */
-                var hex = (value !== null) ? this.getColor(value) : landColor.getHex()
-                if (planeGeometryFaces){
-                    for (var j = 0; j<2; j++){
-                        planeGeometryFaces[i+j].color.setHex(hex);
-  
-                    }
-                }
-                colors[i/2] = hex                
-            }
+        var colors = null;
+        if ( frameKey in this.cachedFaces ) {
+            colors = this.cachedFaces[frameKey];
+            this.paintPlaneGeometry(z, colors, planeGeometryFaces);
+        } else {
+            colors = this.paintPlaneGeometry(z, colors, planeGeometryFaces);
             this.cacheFace(frameKey, colors);
         }
         
-
     }
     
     /* Called when the three.js components decides it is time to animate */
