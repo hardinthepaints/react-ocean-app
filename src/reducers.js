@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 
 import {
-
     PLAYPAUSE_PRESS,
     SCRUBBER,
     RANGE,
@@ -18,22 +17,22 @@ function getCorrectFrame( frame, range ){
     frame = Math.max( frame, range[0] );
     frame = Math.min( frame, range[1]);
     return frame;
-    
+
 }
 
 function currentFrame( state, action ){
-    
+
     switch (action.type) {
         case RANGE:
             return getCorrectFrame( state.currentFrame, action.range );
-        
+
         case SCRUBBER:
             return getCorrectFrame( action.frame, state.range );
-        
+
         case ARROW:
         case SET_CURRENT:
             return getCorrectFrame( action.frame, state.range );
-        
+
         default:
             return state.currentFrame;
     }
@@ -46,16 +45,16 @@ function animationRequestID( animationRequestID=null, action ){
         default:
             return animationRequestID;
     }
-    
+
 }
 
 
 function isPlaying( isPlaying, action ){
-        
+
     switch (action.type){
         case PLAYPAUSE_PRESS:
             return !isPlaying
-        case SCRUBBER:            
+        case SCRUBBER:
             return false;
         case RECEIVE_DATA:
             return false;
@@ -65,7 +64,7 @@ function isPlaying( isPlaying, action ){
             return false;
         default:
             return isPlaying
-        
+
     }
 }
 
@@ -76,7 +75,7 @@ function frames( state = [], action ){
             return action.json;
         default:
             return state
-        
+
     }
 }
 
@@ -111,15 +110,6 @@ function colorRange(state, action){
     }
 }
 
-function allowedFrames( state=[1,2,3,4], action ){
-    switch(action.type){
-        case RANGE:
-            return action.allowedFrames;
-        default:
-            return state;
-    }
-}
-
 /**currentVariable
  *which variable is currently being displayed
  */
@@ -132,8 +122,8 @@ function currentVariable(variable, action) {
     }
 }
 
-function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], colorRange:[10,33], currentVariable:"salt"}, action ){    
-    
+function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], colorRange:[10,33], currentVariable:"salt"}, action ){
+
     return {
         currentFrame:currentFrame( state, action ),
         range:range(state.range, action),
@@ -143,13 +133,12 @@ function ui(state={currentFrame:3, isPlaying:false, speed:70, range:[0,50], colo
         colorRange:colorRange(state.colorRange, action),
         currentVariable:currentVariable(state.currentVariable, action)
     }
-    
+
 }
 
 const rootReducer = combineReducers({
     ui,
     frames,
-    allowedFrames,
 })
 
 export default rootReducer;
